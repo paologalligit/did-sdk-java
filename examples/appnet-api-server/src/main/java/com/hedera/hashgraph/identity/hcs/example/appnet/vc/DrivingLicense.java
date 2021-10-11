@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
+import com.hedera.hashgraph.identity.hcs.example.appnet.dto.BirthDate;
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import java.util.LinkedHashMap;
@@ -13,7 +14,7 @@ import java.util.List;
  * A simple, manual example of a credential subject in verifiable credential - a driving license.
  */
 public class DrivingLicense extends CredentialSubject {
-  private static final String[] JSON_PROPERTIES_ORDER = {"id", "firstName", "lastName", "drivingLicenseCategories"};
+  private static final String[] JSON_PROPERTIES_ORDER = {"id", "firstName", "lastName", "drivingLicenseCategories", "birthDate"};
 
   @Expose
   private final String firstName;
@@ -24,6 +25,9 @@ public class DrivingLicense extends CredentialSubject {
   @Expose
   private final List<String> drivingLicenseCategories;
 
+  @Expose
+  private final BirthDate birthDate;
+
   /**
    * Builds a new driving license credential.
    *
@@ -31,13 +35,15 @@ public class DrivingLicense extends CredentialSubject {
    * @param firstName                Owner's first name.
    * @param lastName                 Owner's last name.
    * @param drivingLicenseCategories A list of categories granted to the owner.
+   * @param birthDate                Owner's birth-date.
    */
   public DrivingLicense(final String did, final String firstName, final String lastName,
-                        final List<String> drivingLicenseCategories) {
+                        final List<String> drivingLicenseCategories, final BirthDate birthDate) {
     this.id = did;
     this.firstName = firstName;
     this.lastName = lastName;
     this.drivingLicenseCategories = drivingLicenseCategories;
+    this.birthDate = birthDate;
   }
 
   /**
@@ -58,7 +64,11 @@ public class DrivingLicense extends CredentialSubject {
 
     for (String property : JSON_PROPERTIES_ORDER) {
       if (root.has(property)) {
-        map.put(property, root.get(property));
+        if (property.equals("birthDate")) {
+          map.put(property, this.birthDate.toNormalizedJsonElement());
+        } else {
+          map.put(property, root.get(property));
+        }
       }
     }
     // Turn map to JSON

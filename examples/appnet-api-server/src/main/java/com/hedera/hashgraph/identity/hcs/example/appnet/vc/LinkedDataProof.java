@@ -23,6 +23,10 @@ public class LinkedDataProof {
   private String verificationMethod;
   @Expose
   private String jws;
+  @Expose
+  private String credentialSubjectMerkleTreeRoot;
+  @Expose
+  private String credentialSubjectMerkleTreeRootSignature;
 
   public String getCreator() {
     return creator;
@@ -86,5 +90,21 @@ public class LinkedDataProof {
 
   public void setJws(final String jws) {
     this.jws = jws;
+  }
+
+  public String getCredentialSubjectMerkleTreeRoot() {
+    return credentialSubjectMerkleTreeRoot;
+  }
+
+  public void setCredentialSubjectMerkleTreeRoot(String credentialSubjectMerkleTreeRoot) {
+    this.credentialSubjectMerkleTreeRoot = credentialSubjectMerkleTreeRoot;
+  }
+
+  public String getCredentialSubjectMerkleTreeRootSignature() {
+    return credentialSubjectMerkleTreeRootSignature;
+  }
+
+  public void setCredentialSubjectMerkleTreeRootSignature(String credentialSubjectMerkleTreeRootSignature) {
+    this.credentialSubjectMerkleTreeRootSignature = credentialSubjectMerkleTreeRootSignature;
   }
 }

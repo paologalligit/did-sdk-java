@@ -8,17 +8,22 @@ import com.hedera.hashgraph.identity.hcs.MessageEnvelope;
 import com.hedera.hashgraph.identity.hcs.did.HcsDid;
 import com.hedera.hashgraph.identity.hcs.did.HcsDidMessage;
 import com.hedera.hashgraph.identity.hcs.example.appnet.AppnetStorage;
+import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicensePresentationRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseDocument;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
+import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
+import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -150,7 +155,7 @@ public class DemoHandler extends AppnetHandler {
         vc.setIssuanceDate(Instant.now());
         vc.addCredentialSubject(
                 new DrivingLicense(req.getOwner(), req.getFirstName(), req.getLastName(),
-                        req.getDrivingLicenseCategories()));
+                        req.getDrivingLicenseCategories(), req.getBirthDate()));
 
         CredentialSchema schema = new CredentialSchema("http://localhost:5050/driving-license-schema.json",
                 DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE);
@@ -159,6 +164,8 @@ public class DemoHandler extends AppnetHandler {
 
         PrivateKey privateKey = getPrivateKeyFromHeader(ctx);
         Ed25519CredentialProof proof = new Ed25519CredentialProof(req.getIssuer());
+        // TODO: this is optional
+        proof.includeMerkleTreeRoot(privateKey, vc.computeCredentialSubjectMerkleTreeRoot());
         proof.sign(privateKey, vc.toNormalizedJson(true));
         vc.setProof(proof);
 
@@ -169,6 +176,25 @@ public class DemoHandler extends AppnetHandler {
         ctx.render(Jackson.json(new ErrorResponse("Driving license generation failed.", e)));
         return;
       }
+    });
+  }
+
+  public void generateDrivingAboveAgePresentation(final Context ctx) {
+    ctx.getRequest().getBody().then(data -> {
+      DrivingLicensePresentationRequest req = null;
+
+      try {
+        req = JsonUtils.getGson().fromJson(data.getText(), DrivingLicensePresentationRequest.class);
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.BAD_REQUEST);
+        ctx.render(Jackson.json(new ErrorResponse("Invalid request input.")));
+        return;
+      }
+
+      DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator();
+      DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(Collections.singletonList(req.getVerifiableCredential()));
+
+      ctx.render(presentation.toNormalizedJson());
     });
   }
 

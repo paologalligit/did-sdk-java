@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.hedera.hashgraph.identity.hcs.did.HcsDidRootKey;
+import com.hedera.hashgraph.identity.hcs.example.appnet.gingerlib.Gingerlib;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -28,7 +29,7 @@ public class Ed25519CredentialProof extends LinkedDataProof {
   public static final String VC_VERIFICATION_METHOD = "Ed25519Signature2018";
   public static final String VC_PROOF_PURPOSE = "assertionMethod";
   private static final String[] JSON_PROPERTIES_ORDER = {"type", "creator", "created", "domain", "nonce",
-      "proofPurpose", "verificationMethod", "jws"};
+      "proofPurpose", "verificationMethod", "jws", "credentialSubjectMerkleTreeRoot",  "credentialSubjectMerkleTreeRootSignature"};
   private static final String JSON_PROPERTY_JWS = "jws";
 
   /**
@@ -145,5 +146,16 @@ public class Ed25519CredentialProof extends LinkedDataProof {
 
     Base64URL signature = Base64URL.encode(signingKey.sign(jwsSigningInput));
     setJws(jwsHeader.toBase64URL().toString() + '.' + '.' + signature.toString());
+  }
+
+  private void signMerkleTreeRoot(PrivateKey signingKey) {
+    setCredentialSubjectMerkleTreeRootSignature(
+            Gingerlib.signMerkleTreeRoot(signingKey.toString(), getCredentialSubjectMerkleTreeRoot())
+    );
+  }
+
+  public void includeMerkleTreeRoot(PrivateKey signingKey, String credentialSubjectMerkleTreeRoot) {
+    setCredentialSubjectMerkleTreeRoot(credentialSubjectMerkleTreeRoot);
+    signMerkleTreeRoot(signingKey);
   }
 }
