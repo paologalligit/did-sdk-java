@@ -217,7 +217,9 @@ public class AppnetServer {
                     .post("demo/generate-driving-license", ctx -> demoHandler.generateDrivingLicense(ctx))
                     .post("demo/sign-vc-message", ctx -> demoHandler.signVcMessage(ctx))
                     .post("demo/get-credential-hash", ctx -> demoHandler.determineCredentialHash(ctx))
+                    .post("demo/get-driver-credential-hash", ctx -> demoHandler.determineDriverCredentialHash(ctx))
                     .post("demo/generate-driver-above-age-presentation", ctx -> demoHandler.generateDrivingAboveAgePresentation(ctx))
+                    .post("demo/generate-presentation-credential-hash", ctx -> demoHandler.determinePresentationCredentialHash(ctx))
 
                     // Schema files
                     .files(f -> f.dir("schemas").files("driving-license-schema.json"))

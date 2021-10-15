@@ -9,14 +9,16 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
 import com.hedera.hashgraph.identity.hcs.vp.VerifiableCredentialBase;
 import com.hedera.hashgraph.identity.hcs.vp.VerifiableCredentialJsonProperties;
-
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import org.threeten.bp.Instant;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase {
-    private static final String[] JSON_PROPERTIES_ORDER = {"@context", "type", "credentialSchema", "issuer",
+    private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "credentialSchema", "issuer",
             "issuanceDate", "credentialSubject", "proof"};
 
     @Expose(serialize = true, deserialize = true)
@@ -105,5 +107,16 @@ public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase
 
     public void setProof(ZkSnarkProof proof) {
         this.proof = proof;
+    }
+
+    @Override
+    public Map<String, Object> addCustomCredentialHashHook() {
+        Map<String, Object> customHashableParams = new LinkedHashMap<>();
+        customHashableParams.put(ZkSnarkProofJsonProperties.CREDENTIAL_SUBJECT_MERKLE_TREE_ROOT, this.proof.getCredentialSubjectMerkleTreeRoot());
+        return customHashableParams;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

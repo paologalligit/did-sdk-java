@@ -6,10 +6,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.hedera.hashgraph.identity.hcs.example.appnet.gingerlib.Gingerlib;
+import com.hedera.hashgraph.identity.hcs.example.appnet.vp.ZkSnarkProofJsonProperties;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
+
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -95,5 +98,12 @@ public class DrivingLicenseDocument extends HcsVcDocumentBase<DrivingLicense> {
     List<DrivingLicense> credentialSubject = getCredentialSubject();
     DrivingLicense license = credentialSubject.get(0);
     return Gingerlib.buildMerkleTreeRootFromCredentialSubject(license.toNormalizedJsonElement().toString());
+  }
+
+  @Override
+  public Map<String, Object> addCustomCredentialHashHook() {
+    Map<String, Object> customHashablePrams = new LinkedHashMap<>();
+    customHashablePrams.put(ZkSnarkProofJsonProperties.CREDENTIAL_SUBJECT_MERKLE_TREE_ROOT, this.proof.getCredentialSubjectMerkleTreeRoot());
+    return customHashablePrams;
   }
 }

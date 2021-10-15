@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.hedera.hashgraph.identity.hcs.vp.HcsVpDocumentBase;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
-
 import org.threeten.bp.Instant;
 
 import java.util.ArrayList;
@@ -58,5 +57,10 @@ public class DriverAboveAgePresentation extends HcsVpDocumentBase<DriverAboveAge
         }
         // Turn map to JSON
         return gson.toJson(map);
+    }
+
+    public String toCredentialHash() {
+        DriverAboveAgeVerifiableCredential credential = this.verifiableCredential.get(0);
+        return credential.toCredentialHash();
     }
 }

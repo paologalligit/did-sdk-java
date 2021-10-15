@@ -23,6 +23,7 @@ public class DrivingLicenseVpGenerator implements VpBuilder<DrivingLicenseDocume
         // Set the verifiable credentials
         DriverAboveAgeVerifiableCredential verifiableCredential = new DriverAboveAgeVerifiableCredential();
         verifiableCredential.setContext(licenseDocument.getContext());
+        verifiableCredential.setId(licenseDocument.getId());
         verifiableCredential.setType(licenseDocument.getType());
         verifiableCredential.setCredentialSchema(licenseDocument.getCredentialSchema());
         verifiableCredential.setIssuer(licenseDocument.getIssuer());

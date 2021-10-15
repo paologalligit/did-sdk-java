@@ -21,15 +21,15 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import ratpack.handling.Context;
 import ratpack.http.Status;
 import ratpack.jackson.Jackson;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 /**
  * Handler of demo requests for presentation purposes.
@@ -238,6 +238,32 @@ public class DemoHandler extends AppnetHandler {
     ctx.getRequest().getBody().then(data -> {
       try {
         String hash = HcsVcDocumentBase.fromJson(data.getText(), DrivingLicense.class).toCredentialHash();
+        ctx.render(hash);
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.BAD_REQUEST);
+        ctx.render(Jackson.json(new ErrorResponse("Invalid verifiable credential document received.")));
+      }
+    });
+  }
+
+  public void determineDriverCredentialHash(Context ctx) {
+    ctx.getRequest().getBody().then(data -> {
+      try {
+        DrivingLicenseDocument dld = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseDocument.class);
+        String hash = dld.toCredentialHash();
+        ctx.render(hash);
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.BAD_REQUEST);
+        ctx.render(Jackson.json(new ErrorResponse("Invalid verifiable credential document received.")));
+      }
+    });
+  }
+
+  public void determinePresentationCredentialHash(Context ctx) {
+    ctx.getRequest().getBody().then(data -> {
+      try {
+        DriverAboveAgePresentation dld = JsonUtils.getGson().fromJson(data.getText(), DriverAboveAgePresentation.class);
+        String hash = dld.toCredentialHash();
         ctx.render(hash);
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);

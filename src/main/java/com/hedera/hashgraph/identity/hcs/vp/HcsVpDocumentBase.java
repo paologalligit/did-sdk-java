@@ -8,22 +8,18 @@ import com.hedera.hashgraph.identity.utils.SingleToArrayTypeAdapterFactory;
 
 import java.util.List;
 
-public class HcsVpDocumentBase<T extends VerifiableCredentialBase> extends HcsVpDocumentHashBase {
-    @Expose(serialize = true, deserialize = false)
-    @SerializedName(HcsVpDocumentJsonProperties.CONTEXT)
-    protected List<String> context;
-
-    @Expose(serialize = true, deserialize = true)
-    @SerializedName(HcsVpDocumentJsonProperties.HOLDER)
-    protected String holder;
-
+public class HcsVpDocumentBase<T extends VerifiableCredentialBase> extends HcsPresentationBase {
     @Expose(serialize = true, deserialize = true)
     @SerializedName(HcsVpDocumentJsonProperties.VERIFIABLE_CREDENTIAL)
     @JsonAdapter(SingleToArrayTypeAdapterFactory.class)
     protected List<T> verifiableCredential;
 
+    public void setHolder(String holder) {
+        this.holder = holder;
+    }
+
     /**
-     * Creates a new VC Document instance.
+     * Creates a new VP Document instance.
      */
     public HcsVpDocumentBase() {
         super();
@@ -37,5 +33,9 @@ public class HcsVpDocumentBase<T extends VerifiableCredentialBase> extends HcsVp
      */
     public void addType(final String type) {
         this.type.add(type);
+    }
+
+    public void addVerifiableCredential(T verifiableCredential) {
+        this.verifiableCredential.add(verifiableCredential);
     }
 }
