@@ -74,4 +74,20 @@ public abstract class HcsDocumentHashBase {
   public Map<String, Object> addCustomCredentialHashHook() {
     return new LinkedHashMap<>();
   }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setType(List<String> type) {
+    this.type = type;
+  }
+
+  public void setIssuer(Issuer issuer) {
+    this.issuer = issuer;
+  }
+
+  public void setIssuanceDate(Instant issuanceDate) {
+    this.issuanceDate = issuanceDate;
+  }
 }

@@ -11,12 +11,8 @@ public class ZkSnarkProof {
     private String type;
 
     @Expose(serialize = true, deserialize = true)
-    @SerializedName(ZkSnarkProofJsonProperties.CREDENTIAL_SUBJECT_MERKLE_TREE_ROOT)
-    private String credentialSubjectMerkleTreeRoot;
-
-    @Expose(serialize = true, deserialize = true)
-    @SerializedName(ZkSnarkProofJsonProperties.CREDENTIAL_SUBJECT_MERKLE_TREE_ROOT_SIGNATURE)
-    private String credentialSubjectMerkleTreeRootSignature;
+    @SerializedName(ZkSnarkProofJsonProperties.SIGNATURE)
+    private String signature;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName(ZkSnarkProofJsonProperties.SNARK_PROOF)
@@ -30,14 +26,6 @@ public class ZkSnarkProof {
         return type;
     }
 
-    public String getCredentialSubjectMerkleTreeRoot() {
-        return credentialSubjectMerkleTreeRoot;
-    }
-
-    public String getCredentialSubjectMerkleTreeRootSignature() {
-        return credentialSubjectMerkleTreeRootSignature;
-    }
-
     public String getSnarkProof() {
         return snarkProof;
     }
@@ -46,15 +34,15 @@ public class ZkSnarkProof {
         this.type = type;
     }
 
-    public void setCredentialSubjectMerkleTreeRoot(String credentialSubjectMerkleTreeRoot) {
-        this.credentialSubjectMerkleTreeRoot = credentialSubjectMerkleTreeRoot;
-    }
-
-    public void setCredentialSubjectMerkleTreeRootSignature(String credentialSubjectMerkleTreeRootSignature) {
-        this.credentialSubjectMerkleTreeRootSignature = credentialSubjectMerkleTreeRootSignature;
-    }
-
     public void setSnarkProof(String snarkProof) {
         this.snarkProof = snarkProof;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }

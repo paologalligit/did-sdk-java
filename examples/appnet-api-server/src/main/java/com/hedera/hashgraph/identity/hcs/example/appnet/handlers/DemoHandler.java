@@ -11,10 +11,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.AppnetStorage;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicensePresentationRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseDocument;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
+import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
@@ -164,8 +161,6 @@ public class DemoHandler extends AppnetHandler {
 
         PrivateKey privateKey = getPrivateKeyFromHeader(ctx);
         Ed25519CredentialProof proof = new Ed25519CredentialProof(req.getIssuer());
-        // TODO: this is optional
-        proof.includeMerkleTreeRoot(privateKey, vc.computeCredentialSubjectMerkleTreeRoot());
         proof.sign(privateKey, vc.toNormalizedJson(true));
         vc.setProof(proof);
 
@@ -174,7 +169,54 @@ public class DemoHandler extends AppnetHandler {
       } catch (Exception e) {
         ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
         ctx.render(Jackson.json(new ErrorResponse("Driving license generation failed.", e)));
+      }
+    });
+  }
+
+  public void generateZeroKnowledgeDrivingLicense(final Context ctx) {
+    ctx.getRequest().getBody().then(data -> {
+      DrivingLicenseRequest req = null;
+      try {
+        req = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseRequest.class);
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.BAD_REQUEST);
+        ctx.render(Jackson.json(new ErrorResponse("Invalid request input.")));
         return;
+      }
+
+      // TODO This check could be enabled in case we want to make sure the Issuer published their DID first.
+      // HcsDidMessage issuer = storage.resolveDid(req.getIssuer());
+      // if (issuer == null) {
+      // ctx.getResponse().status(Status.BAD_REQUEST);
+      // ctx.render(Jackson.json(new ErrorResponse("The issuer DID could not be resolved: " + req.getIssuer())));
+      // return;
+      // }
+
+      log.info("Generating new driving license document with zero knowledge for: " + req.getOwner());
+
+      try {
+        DrivingLicenseZeroKnowledgeDocument vc = new DrivingLicenseZeroKnowledgeDocument();
+        vc.setIssuer(req.getIssuer());
+        vc.setIssuanceDate(Instant.now());
+        DrivingLicense drivingLicense = new DrivingLicense(req.getOwner(), req.getFirstName(), req.getLastName(),
+                req.getDrivingLicenseCategories(), req.getBirthDate());
+        vc.addCredentialSubject(drivingLicense);
+
+        CredentialSchema schema = new CredentialSchema("http://localhost:5050/driving-license-schema.json",
+                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE);
+
+        vc.setCredentialSchema(schema);
+
+        PrivateKey privateKey = getPrivateKeyFromHeader(ctx);
+        Ed25519CredentialProof proof = new Ed25519CredentialProof(req.getIssuer());
+        proof.sign(privateKey, vc.toNormalizedJson(true));
+        vc.setProof(proof);
+
+        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
+        ctx.render(vc.toNormalizedJson(false));
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
+        ctx.render(Jackson.json(new ErrorResponse("Driving license generation failed.", e)));
       }
     });
   }

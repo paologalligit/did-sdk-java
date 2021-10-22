@@ -112,7 +112,7 @@ public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase
     @Override
     public Map<String, Object> addCustomCredentialHashHook() {
         Map<String, Object> customHashableParams = new LinkedHashMap<>();
-        customHashableParams.put(ZkSnarkProofJsonProperties.CREDENTIAL_SUBJECT_MERKLE_TREE_ROOT, this.proof.getCredentialSubjectMerkleTreeRoot());
+        customHashableParams.put(ZkSnarkProofJsonProperties.SIGNATURE, this.proof.getSignature());
         return customHashableParams;
     }
 

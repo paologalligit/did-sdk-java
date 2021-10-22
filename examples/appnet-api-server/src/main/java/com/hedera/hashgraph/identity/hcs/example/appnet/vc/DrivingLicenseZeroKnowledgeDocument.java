@@ -16,14 +16,14 @@ import java.util.UUID;
 /**
  * A simple, manually constructed example of a driving license verifiable credential document.
  */
-public class DrivingLicenseDocument extends HcsVcDocumentBase<DrivingLicense> {
+public class DrivingLicenseZeroKnowledgeDocument extends HcsVcDocumentBase<DrivingLicense> {
   public static final String CREDENTIAL_SCHEMA_TYPE = "JsonSchemaValidator2018";
   private static final String DOCUMENT_TYPE = "DrivingLicense";
   private static final String EXAMPLE_ID_PREFIX = "https://example.appnet.com/driving-license/";
   private static final String JSON_PROPERTY_CREDENTIAL_SUBJECT = "credentialSubject";
   private static final String JSON_PROPERTY_PROOF = "proof";
   private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "credentialSchema",
-          "credentialSubject", "issuer", "issuanceDate", "proof"};
+      "credentialSubject", "issuer", "issuanceDate", "proof"};
   @Expose
   private CredentialSchema credentialSchema;
 
@@ -33,7 +33,7 @@ public class DrivingLicenseDocument extends HcsVcDocumentBase<DrivingLicense> {
   /**
    * Creates a new verifiable credential document instance with predefined types and auto-generated ID.
    */
-  public DrivingLicenseDocument() {
+  public DrivingLicenseZeroKnowledgeDocument() {
     super();
     addType(DOCUMENT_TYPE);
 
@@ -90,5 +90,12 @@ public class DrivingLicenseDocument extends HcsVcDocumentBase<DrivingLicense> {
 
   public void setProof(final Ed25519CredentialProof proof) {
     this.proof = proof;
+  }
+
+  @Override
+  public Map<String, Object> addCustomCredentialHashHook() {
+    Map<String, Object> customHashablePrams = new LinkedHashMap<>();
+    customHashablePrams.put(ZkSnarkProofJsonProperties.SIGNATURE, this.proof.getSignature());
+    return customHashablePrams;
   }
 }

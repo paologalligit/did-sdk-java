@@ -22,7 +22,7 @@ import org.threeten.bp.Instant;
  * mandatory attributes from the VC specification and Hedera HCS DID method specification point of view. Applications
  * shall extend it with any VC document properties or custom properties they require.
  */
-public class HcsVcDocumentBase<T extends CredentialSubject> extends HcsDocumentHashBase {
+public abstract class HcsVcDocumentBase<T extends CredentialSubject> extends HcsDocumentHashBase {
 
   @Expose(serialize = true, deserialize = false)
   @SerializedName(HcsVcDocumentJsonProperties.CONTEXT)
@@ -154,4 +154,11 @@ public class HcsVcDocumentBase<T extends CredentialSubject> extends HcsDocumentH
     return credentialSubject;
   }
 
+  public void setCredentialSubject(List<T> credentialSubject) {
+    this.credentialSubject = credentialSubject;
+  }
+
+  public void setContext(List<String> context) {
+    this.context = context;
+  }
 }

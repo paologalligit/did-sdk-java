@@ -24,9 +24,7 @@ public class LinkedDataProof {
   @Expose
   private String jws;
   @Expose
-  private String credentialSubjectMerkleTreeRoot;
-  @Expose
-  private String credentialSubjectMerkleTreeRootSignature;
+  private String signature;
 
   public String getCreator() {
     return creator;
@@ -92,19 +90,11 @@ public class LinkedDataProof {
     this.jws = jws;
   }
 
-  public String getCredentialSubjectMerkleTreeRoot() {
-    return credentialSubjectMerkleTreeRoot;
+  public String getSignature() {
+    return signature;
   }
 
-  public void setCredentialSubjectMerkleTreeRoot(String credentialSubjectMerkleTreeRoot) {
-    this.credentialSubjectMerkleTreeRoot = credentialSubjectMerkleTreeRoot;
-  }
-
-  public String getCredentialSubjectMerkleTreeRootSignature() {
-    return credentialSubjectMerkleTreeRootSignature;
-  }
-
-  public void setCredentialSubjectMerkleTreeRootSignature(String credentialSubjectMerkleTreeRootSignature) {
-    this.credentialSubjectMerkleTreeRootSignature = credentialSubjectMerkleTreeRootSignature;
+  public void setSignature(String signature) {
+    this.signature = signature;
   }
 }
