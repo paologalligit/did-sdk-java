@@ -5,12 +5,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vp.ZkSnarkProofJsonProperties;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**

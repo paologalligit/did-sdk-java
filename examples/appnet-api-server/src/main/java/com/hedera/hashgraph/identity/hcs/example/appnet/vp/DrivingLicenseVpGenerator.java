@@ -3,7 +3,8 @@ package com.hedera.hashgraph.identity.hcs.example.appnet.vp;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseDocument;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
-import com.hedera.hashgraph.identity.hcs.vp.VpBuilder;
+import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
+import com.hedera.hashgraph.zeroknowledge.vp.VpBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

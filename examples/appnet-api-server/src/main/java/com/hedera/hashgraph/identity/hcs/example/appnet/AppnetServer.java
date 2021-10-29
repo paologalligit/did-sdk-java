@@ -215,6 +215,7 @@ public class AppnetServer {
                     .post("demo/generate-did", ctx -> demoHandler.generateDid(ctx))
                     .post("demo/sign-did-message", ctx -> demoHandler.signDidMessage(ctx))
                     .post("demo/generate-driving-license", ctx -> demoHandler.generateDrivingLicense(ctx))
+                    .post("demo/generate-zk-driving-license", ctx -> demoHandler.generateZeroKnowledgeDrivingLicense(ctx))
                     .post("demo/sign-vc-message", ctx -> demoHandler.signVcMessage(ctx))
                     .post("demo/get-credential-hash", ctx -> demoHandler.determineCredentialHash(ctx))
                     .post("demo/get-driver-credential-hash", ctx -> demoHandler.determineDriverCredentialHash(ctx))

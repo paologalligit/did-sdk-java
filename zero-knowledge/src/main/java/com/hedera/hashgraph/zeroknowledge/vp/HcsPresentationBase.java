@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.vp;
+package com.hedera.hashgraph.zeroknowledge.vp;
 
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;
@@ -8,7 +8,7 @@ import org.threeten.bp.Instant;
 
 import java.util.List;
 
-public abstract class HcsPresentationBase {
+public abstract class HcsPresentationBase extends VerifiableCredentialBase {
     @Expose(serialize = true, deserialize = false)
     @SerializedName(HcsVpDocumentJsonProperties.CONTEXT)
     protected List<String> context;

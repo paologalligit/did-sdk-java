@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.vp;
+package com.hedera.hashgraph.zeroknowledge.vp;
 
 public class VerifiableCredentialJsonProperties {
     public static final String CONTEXT = "@context";

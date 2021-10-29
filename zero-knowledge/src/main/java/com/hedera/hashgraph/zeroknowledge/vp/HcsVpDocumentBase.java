@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.vp;
+package com.hedera.hashgraph.zeroknowledge.vp;
 
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;

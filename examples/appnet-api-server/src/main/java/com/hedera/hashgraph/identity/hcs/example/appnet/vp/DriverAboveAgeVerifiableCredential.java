@@ -7,9 +7,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
-import com.hedera.hashgraph.identity.hcs.vp.VerifiableCredentialBase;
-import com.hedera.hashgraph.identity.hcs.vp.VerifiableCredentialJsonProperties;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
+import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
+import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProofJsonProperties;
+import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredentialBase;
+import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredentialJsonProperties;
 import org.threeten.bp.Instant;
 
 import java.util.HashMap;
@@ -107,13 +109,6 @@ public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase
 
     public void setProof(ZkSnarkProof proof) {
         this.proof = proof;
-    }
-
-    @Override
-    public Map<String, Object> addCustomCredentialHashHook() {
-        Map<String, Object> customHashableParams = new LinkedHashMap<>();
-        customHashableParams.put(ZkSnarkProofJsonProperties.SIGNATURE, this.proof.getSignature());
-        return customHashableParams;
     }
 
     public void setId(String id) {

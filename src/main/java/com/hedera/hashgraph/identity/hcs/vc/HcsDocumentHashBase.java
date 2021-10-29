@@ -62,7 +62,7 @@ public abstract class HcsDocumentHashBase {
     map.put(HcsVcDocumentJsonProperties.ISSUER, this.issuer.getId());
     map.put(HcsVcDocumentJsonProperties.ISSUANCE_DATE, this.issuanceDate);
 
-    Map<String, Object> customHashableProperties = addCustomCredentialHashHook();
+    Map<String, Object> customHashableProperties = getCustomHashableFieldsHook();
     map.putAll(customHashableProperties);
 
     String json = JsonUtils.getGson().toJson(map);
@@ -71,7 +71,7 @@ public abstract class HcsDocumentHashBase {
     return Base58.encode(hash);
   }
 
-  public Map<String, Object> addCustomCredentialHashHook() {
+  public Map<String, Object> getCustomHashableFieldsHook() {
     return new LinkedHashMap<>();
   }
 

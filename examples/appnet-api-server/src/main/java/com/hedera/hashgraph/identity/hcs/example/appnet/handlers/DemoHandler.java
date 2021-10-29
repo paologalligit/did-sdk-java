@@ -1,6 +1,7 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.handlers;
 
 import com.google.common.base.Strings;
+import com.google.gson.JsonObject;
 import com.hedera.hashgraph.identity.DidDocumentBase;
 import com.hedera.hashgraph.identity.hcs.HcsIdentityNetwork;
 import com.hedera.hashgraph.identity.hcs.Message;
@@ -11,6 +12,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.AppnetStorage;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicensePresentationRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
+import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DrivingLicenseZeroKnowledgePresenter;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
@@ -196,6 +198,8 @@ public class DemoHandler extends AppnetHandler {
 
       try {
         DrivingLicenseZeroKnowledgeDocument vc = new DrivingLicenseZeroKnowledgeDocument();
+        DrivingLicenseZeroKnowledgePresenter presenter = new DrivingLicenseZeroKnowledgePresenter();
+
         vc.setIssuer(req.getIssuer());
         vc.setIssuanceDate(Instant.now());
         DrivingLicense drivingLicense = new DrivingLicense(req.getOwner(), req.getFirstName(), req.getLastName(),
@@ -209,11 +213,14 @@ public class DemoHandler extends AppnetHandler {
 
         PrivateKey privateKey = getPrivateKeyFromHeader(ctx);
         Ed25519CredentialProof proof = new Ed25519CredentialProof(req.getIssuer());
-        proof.sign(privateKey, vc.toNormalizedJson(true));
+        proof.sign(privateKey, presenter.fromDocumentToString(vc));
         vc.setProof(proof);
 
+        String s = presenter.fromDocumentToString(vc);
+        DrivingLicenseZeroKnowledgeDocument o = presenter.fromStringToDocument(s);
+
         storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
-        ctx.render(vc.toNormalizedJson(false));
+        ctx.render(presenter.fromDocumentToString(vc));
       } catch (Exception e) {
         ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
         ctx.render(Jackson.json(new ErrorResponse("Driving license generation failed.", e)));

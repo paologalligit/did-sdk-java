@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.example.appnet.vp;
+package com.hedera.hashgraph.zeroknowledge.proof;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
