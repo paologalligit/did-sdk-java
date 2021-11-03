@@ -5,7 +5,16 @@ public class BaseMerkleTree {
         return new BaseMerkleTree();
     }
 
-    public void append(BaseMerkleTree baseMerkleTree) {
+    public void append(FieldElement fieldElement) {
+    }
 
+    public void finalizeTreeInPlace() {}
+
+    public BaseMerkleTree finalizeTree() {
+        return this;
+    }
+
+    public FieldElement root() {
+        return new FieldElement();
     }
 }

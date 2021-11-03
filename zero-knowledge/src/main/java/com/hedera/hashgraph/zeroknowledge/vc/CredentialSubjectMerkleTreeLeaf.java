@@ -1,23 +1,25 @@
 package com.hedera.hashgraph.zeroknowledge.vc;
 
 
+
 import com.hedera.hashgraph.zeroknowledge.mock.*;
 
 import java.util.Arrays;
 
-public class CredentialSubjectMerkleTree implements MerkleTreeLeaf {
+public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible {
     private final byte[] propertyKey;
     private final byte[] propertyValue;
 
-    public CredentialSubjectMerkleTree(byte[] propertyKey, byte[] propertyValue) {
+    public CredentialSubjectMerkleTreeLeaf(byte[] propertyKey, byte[] propertyValue) {
         this.propertyKey = propertyKey;
         this.propertyValue = propertyValue;
     }
 
     @Override
-    public FieldElement getLeafAsFieldElement() throws MerkleTreeLeafException {
+    public FieldElement toFieldElement() throws MerkleTreeLeafException {
         try {
             FieldElement keyField = FieldElement.deserialize(propertyKey);
+            // TODO: check that the deserialization is correct
             FieldElement valueFields = FieldElement.deserialize(propertyValue);
 
             PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
