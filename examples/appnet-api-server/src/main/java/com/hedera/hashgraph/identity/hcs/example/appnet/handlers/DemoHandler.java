@@ -20,6 +20,8 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
+import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -216,8 +218,9 @@ public class DemoHandler extends AppnetHandler {
         proof.sign(privateKey, presenter.fromDocumentToString(vc));
         vc.setProof(proof);
 
-        String s = presenter.fromDocumentToString(vc);
-        DrivingLicenseZeroKnowledgeDocument o = presenter.fromStringToDocument(s);
+        ZkSignature<DrivingLicense> zkSignature = new ZkSignature<>();
+        zkSignature.sign(privateKey, vc);
+        vc.setZeroKnowledgeSignature(zkSignature);
 
         storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
         ctx.render(presenter.fromDocumentToString(vc));
@@ -295,10 +298,10 @@ public class DemoHandler extends AppnetHandler {
     });
   }
 
-  public void determineDriverCredentialHash(Context ctx) {
+  public void determineZkCredentialHash(Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        DrivingLicenseDocument dld = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseDocument.class);
+        DrivingLicenseZeroKnowledgeDocument dld = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseZeroKnowledgeDocument.class);
         String hash = dld.toCredentialHash();
         ctx.render(hash);
       } catch (Exception e) {
