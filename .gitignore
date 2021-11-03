@@ -14,7 +14,7 @@ hs_err_pid*
 .gradle
 
 ### Output directories ###
-/build/
+/**/build/
 /bin/
 /target/
 
