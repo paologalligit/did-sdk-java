@@ -25,21 +25,13 @@ public class BirthDate {
         this.year = year;
     }
 
-    public JsonElement toNormalizedJsonElement() {
-        Gson gson = JsonUtils.getGson();
-
-        // First turn to normal JSON
-        JsonObject root = gson.toJsonTree(this).getAsJsonObject();
-        // Then put JSON properties in ordered map
-        LinkedHashMap<String, JsonElement> map = new LinkedHashMap<>();
-
-        for (String property : JSON_PROPERTIES_ORDER) {
-            if (root.has(property)) {
-                map.put(property, root.get(property));
-            }
-        }
-        // Turn map to JSON
-        return gson.toJsonTree(map);
+    public static BirthDate getJsonElementAsBirthDate(JsonElement jsonElement) {
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        return new BirthDate(
+                jsonObject.get("day").getAsInt(),
+                jsonObject.get("month").getAsInt(),
+                jsonObject.get("year").getAsInt()
+        );
     }
 
     public int getDay() {

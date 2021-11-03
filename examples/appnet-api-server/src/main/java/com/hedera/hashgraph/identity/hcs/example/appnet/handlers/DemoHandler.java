@@ -301,8 +301,10 @@ public class DemoHandler extends AppnetHandler {
   public void determineZkCredentialHash(Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        DrivingLicenseZeroKnowledgeDocument dld = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseZeroKnowledgeDocument.class);
-        String hash = dld.toCredentialHash();
+        DrivingLicenseZeroKnowledgePresenter presenter = new DrivingLicenseZeroKnowledgePresenter();
+        DrivingLicenseZeroKnowledgeDocument document = presenter.fromStringToDocument(data.getText());
+        String hash = document.toCredentialHash();
+
         ctx.render(hash);
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);

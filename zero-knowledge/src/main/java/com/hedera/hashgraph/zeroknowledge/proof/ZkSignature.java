@@ -16,6 +16,14 @@ public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSi
     @Expose
     private String signature;
 
+    public ZkSignature() {
+        this(null);
+    }
+
+    public ZkSignature(String signature) {
+        this.signature = signature;
+    }
+
     @Override
     public String getSignature() {
         return this.signature;
