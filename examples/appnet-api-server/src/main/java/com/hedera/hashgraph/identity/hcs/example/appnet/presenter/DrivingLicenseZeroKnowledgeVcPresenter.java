@@ -8,7 +8,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKnowledgeDocument;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
-import com.hedera.hashgraph.identity.hcs.presenter.HcsVcDocumentPresenter;
+import com.hedera.hashgraph.identity.hcs.presenter.HcsVcDocumentVcPresenter;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
@@ -21,13 +21,13 @@ import java.util.List;
 import static com.hedera.hashgraph.identity.hcs.example.appnet.dto.BirthDate.getJsonElementAsBirthDate;
 import static com.hedera.hashgraph.identity.utils.JsonUtils.getJsonElementAsList;
 
-public class DrivingLicenseZeroKnowledgePresenter extends HcsVcDocumentPresenter<DrivingLicenseZeroKnowledgeDocument> {
+public class DrivingLicenseZeroKnowledgeVcPresenter extends HcsVcDocumentVcPresenter<DrivingLicenseZeroKnowledgeDocument> {
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "credentialSchema",
             "credentialSubject", "issuer", "issuanceDate", "proof"};
 
     @Override
     public String fromDocumentToString(DrivingLicenseZeroKnowledgeDocument vcDocument) {
-        JsonObject root = fromDocumentToJson(vcDocument);
+        JsonObject root = gson.toJsonTree(vcDocument).getAsJsonObject();
 
         LinkedHashMap<String, JsonElement> map = new LinkedHashMap<>();
         for (String property : JSON_PROPERTIES_ORDER) {
@@ -58,12 +58,6 @@ public class DrivingLicenseZeroKnowledgePresenter extends HcsVcDocumentPresenter
         proofObject.addProperty(HcsVcDocumentJsonProperties.ZK_SIGNATURE, vcDocument.getZeroKnowledgeSignature().getSignature());
         map.put(property, proofObject);
     }
-
-    @Override
-    public JsonObject fromDocumentToJson(DrivingLicenseZeroKnowledgeDocument vcDocument) {
-        return gson.toJsonTree(vcDocument).getAsJsonObject();
-    }
-
     @Override
     public DrivingLicenseZeroKnowledgeDocument fromJsonToDocument(JsonObject jsonDocument) {
         DrivingLicenseZeroKnowledgeDocument document = super.fromJsonToDocument(jsonDocument);
