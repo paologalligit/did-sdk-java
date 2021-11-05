@@ -8,9 +8,8 @@ import com.google.gson.annotations.SerializedName;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProofJsonProperties;
-import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredentialBase;
+import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredential;
 import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredentialJsonProperties;
 import org.threeten.bp.Instant;
 
@@ -19,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase {
+public class DriverAboveAgeVerifiableCredential extends VerifiableCredential {
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "credentialSchema", "issuer",
             "issuanceDate", "credentialSubject", "proof"};
 
@@ -30,10 +29,6 @@ public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase
     @Expose(serialize = true, deserialize = true)
     @SerializedName(VerifiableCredentialJsonProperties.CREDENTIAL_SUBJECT)
     protected Map<String, String> credentialSubject;
-
-    @Expose(serialize = true, deserialize = true)
-    @SerializedName(VerifiableCredentialJsonProperties.PROOF)
-    protected ZkSnarkProof proof;
 
     public DriverAboveAgeVerifiableCredential() {
         super();
@@ -101,14 +96,6 @@ public class DriverAboveAgeVerifiableCredential extends VerifiableCredentialBase
         }
         // Turn map to JSON
         return gson.toJsonTree(map);
-    }
-
-    public ZkSnarkProof getProof() {
-        return proof;
-    }
-
-    public void setProof(ZkSnarkProof proof) {
-        this.proof = proof;
     }
 
     public void setId(String id) {

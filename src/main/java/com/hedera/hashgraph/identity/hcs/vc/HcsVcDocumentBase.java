@@ -50,9 +50,10 @@ public abstract class HcsVcDocumentBase<T extends CredentialSubject> extends Hcs
    * @param credentialSubjectClass The type of the credential subject inside.
    * @return The {@link HcsVcDocumentBase} object.
    */
-  public static <U extends CredentialSubject> HcsVcDocumentBase<U> fromJson(final String json,
+  public static <U extends CredentialSubject, E extends HcsVcDocumentBase<U>> HcsVcDocumentBase<U> fromJson(final String json,
+                                                                            final Class<E> vcDocumentClass,
                                                                             final Class<U> credentialSubjectClass) {
-    Type envelopeType = TypeToken.getParameterized(HcsVcDocumentBase.class, credentialSubjectClass).getType();
+    Type envelopeType = TypeToken.getParameterized(vcDocumentClass, credentialSubjectClass).getType();
     return JsonUtils.getGson().fromJson(json, envelopeType);
   }
 

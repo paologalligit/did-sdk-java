@@ -10,8 +10,4 @@ public abstract class VerifiableCredentialBase extends HcsDocumentHashBase {
     @Expose(deserialize = false)
     @SerializedName(VerifiableCredentialJsonProperties.CONTEXT)
     protected List<String> context;
-
-    protected VerifiableCredentialBase() {
-        super();
-    }
 }

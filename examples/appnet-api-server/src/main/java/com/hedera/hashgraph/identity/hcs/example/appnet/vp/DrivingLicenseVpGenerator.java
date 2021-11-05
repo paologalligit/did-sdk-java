@@ -1,18 +1,28 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.vp;
 
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseDocument;
-import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
+import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKnowledgeDocument;
+import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProofProvider;
+import com.hedera.hashgraph.zeroknowledge.circuit.model.ProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
-import com.hedera.hashgraph.zeroknowledge.vp.VpBuilder;
+import com.hedera.hashgraph.zeroknowledge.vp.VpZkSnarkBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
-public class DrivingLicenseVpGenerator implements VpBuilder<DrivingLicenseDocument, DriverAboveAgePresentation> {
+public class DrivingLicenseVpGenerator extends VpZkSnarkBuilder<DrivingLicenseZeroKnowledgeDocument, DriverAboveAgePresentation> {
+
+    public static final int AGE_THRESHOLD = 18;
+
+    public DrivingLicenseVpGenerator(ZeroKnowledgeProofProvider zeroKnowledgeProofProvider) {
+        super(zeroKnowledgeProofProvider);
+    }
+
     @Override
-    public DriverAboveAgePresentation generatePresentation(List<DrivingLicenseDocument> vcDocuments) {
-        DrivingLicenseDocument licenseDocument = vcDocuments.get(0);
+    public DriverAboveAgePresentation generatePresentation(List<DrivingLicenseZeroKnowledgeDocument> vcDocuments, Map<String, Object> presentationMetadata) {
+        DrivingLicenseZeroKnowledgeDocument licenseDocument = vcDocuments.get(0);
 
         DriverAboveAgePresentation driverAboveAgePresentation = new DriverAboveAgePresentation();
 
@@ -23,19 +33,19 @@ public class DrivingLicenseVpGenerator implements VpBuilder<DrivingLicenseDocume
         DriverAboveAgeVerifiableCredential verifiableCredential = getVerifiableCredential(licenseDocument);
 
         // Set the proof
-        setProof(licenseDocument, driverAboveAgePresentation, verifiableCredential);
+        setProof(licenseDocument, driverAboveAgePresentation, verifiableCredential, presentationMetadata);
 
         return driverAboveAgePresentation;
     }
 
-    private void setCredentialSubjects(DrivingLicenseDocument licenseDocument, DriverAboveAgePresentation driverAboveAgePresentation) {
+    private void setCredentialSubjects(DrivingLicenseZeroKnowledgeDocument licenseDocument, DriverAboveAgePresentation driverAboveAgePresentation) {
         List<DrivingLicense> credentialSubjects = licenseDocument.getCredentialSubject();
         DrivingLicense credentialSubject = credentialSubjects.get(0);
         driverAboveAgePresentation.setHolder(credentialSubject.getId());
     }
 
     @NotNull
-    private DriverAboveAgeVerifiableCredential getVerifiableCredential(DrivingLicenseDocument licenseDocument) {
+    private DriverAboveAgeVerifiableCredential getVerifiableCredential(DrivingLicenseZeroKnowledgeDocument licenseDocument) {
         DriverAboveAgeVerifiableCredential verifiableCredential = new DriverAboveAgeVerifiableCredential();
         verifiableCredential.setContext(licenseDocument.getContext());
         verifiableCredential.setId(licenseDocument.getId());
@@ -47,13 +57,37 @@ public class DrivingLicenseVpGenerator implements VpBuilder<DrivingLicenseDocume
         return verifiableCredential;
     }
 
-    private void setProof(DrivingLicenseDocument licenseDocument, DriverAboveAgePresentation driverAboveAgePresentation, DriverAboveAgeVerifiableCredential verifiableCredential) {
+    private void setProof(
+            DrivingLicenseZeroKnowledgeDocument licenseDocument,
+            DriverAboveAgePresentation driverAboveAgePresentation,
+            DriverAboveAgeVerifiableCredential verifiableCredential,
+            Map<String, Object> presentationMetadata
+    ) {
         ZkSnarkProof proof = new ZkSnarkProof();
-        Ed25519CredentialProof documentProof = licenseDocument.getProof();
-        String signature = documentProof.getSignature();
-        proof.setSignature(signature);
-        proof.setSnarkProof("zkSnarkProof");
+        String signature = licenseDocument.getZeroKnowledgeSignature().getSignature();
+        proof.setZkSignature(signature);
+        ProofPublicInput publicInput = getPublicInputFromVcDocument(licenseDocument, presentationMetadata);
+        byte[] snarkProof = generateSnarkProof(publicInput);
+        proof.setSnarkProof(new String(snarkProof));
         verifiableCredential.setProof(proof);
         driverAboveAgePresentation.addVerifiableCredential(verifiableCredential);
+    }
+
+    private ProofPublicInput getPublicInputFromVcDocument(DrivingLicenseZeroKnowledgeDocument vcDocument, Map<String, Object> presentationMetadata) {
+        DrivingLicense drivingLicense = vcDocument.getCredentialSubject().get(0);
+        String holderPublicKey = drivingLicense.getId();
+        String issuerPublicKey = vcDocument.getIssuer().getId();
+        String documentId = vcDocument.getId();
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        String challenge = presentationMetadata.get("challenge").toString();
+
+        return new ProofPublicInput(
+                holderPublicKey,
+                issuerPublicKey,
+                documentId,
+                AGE_THRESHOLD,
+                currentYear,
+                challenge
+        );
     }
 }

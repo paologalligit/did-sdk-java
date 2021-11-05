@@ -9,10 +9,10 @@ import com.hedera.hashgraph.identity.hcs.MessageEnvelope;
 import com.hedera.hashgraph.identity.hcs.did.HcsDid;
 import com.hedera.hashgraph.identity.hcs.did.HcsDidMessage;
 import com.hedera.hashgraph.identity.hcs.example.appnet.AppnetStorage;
-import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicensePresentationRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
-import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DrivingLicenseZeroKnowledgePresenter;
+import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DriverAboveAgeVpPresenter;
+import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DrivingLicenseZeroKnowledgeVcPresenter;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
@@ -20,8 +20,8 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.zeroknowledge.circuit.ZkSnarkProofProvider;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -31,6 +31,8 @@ import ratpack.jackson.Jackson;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Handler of demo requests for presentation purposes.
@@ -200,7 +202,7 @@ public class DemoHandler extends AppnetHandler {
 
       try {
         DrivingLicenseZeroKnowledgeDocument vc = new DrivingLicenseZeroKnowledgeDocument();
-        DrivingLicenseZeroKnowledgePresenter presenter = new DrivingLicenseZeroKnowledgePresenter();
+        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
 
         vc.setIssuer(req.getIssuer());
         vc.setIssuanceDate(Instant.now());
@@ -233,20 +235,31 @@ public class DemoHandler extends AppnetHandler {
 
   public void generateDrivingAboveAgePresentation(final Context ctx) {
     ctx.getRequest().getBody().then(data -> {
-      DrivingLicensePresentationRequest req = null;
+      JsonObject req;
+      DrivingLicenseZeroKnowledgeDocument doc;
 
       try {
-        req = JsonUtils.getGson().fromJson(data.getText(), DrivingLicensePresentationRequest.class);
+        req = JsonUtils.getGson().fromJson(data.getText(), JsonObject.class);
+        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
+        doc = presenter.fromStringToDocument(JsonUtils.getGson().toJson(req.get("verifiableCredential")));
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);
         ctx.render(Jackson.json(new ErrorResponse("Invalid request input.")));
         return;
       }
 
-      DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator();
-      DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(Collections.singletonList(req.getVerifiableCredential()));
+      DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
+      DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator(
+              new ZkSnarkProofProvider()
+      );
+      Map<String, Object> metadataMap = new HashMap<>();
+      metadataMap.put("challenge", req.get("challenge").getAsString());
 
-      ctx.render(presentation.toNormalizedJson());
+      DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(
+              Collections.singletonList(doc),
+              metadataMap
+      );
+      ctx.render(presenter.fromDocumentToString(presentation));
     });
   }
 
@@ -289,7 +302,7 @@ public class DemoHandler extends AppnetHandler {
   public void determineCredentialHash(final Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        String hash = HcsVcDocumentBase.fromJson(data.getText(), DrivingLicense.class).toCredentialHash();
+        String hash = HcsVcDocumentBase.fromJson(data.getText(), DrivingLicenseDocument.class, DrivingLicense.class).toCredentialHash();
         ctx.render(hash);
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);
@@ -301,10 +314,9 @@ public class DemoHandler extends AppnetHandler {
   public void determineZkCredentialHash(Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        DrivingLicenseZeroKnowledgePresenter presenter = new DrivingLicenseZeroKnowledgePresenter();
+        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
         DrivingLicenseZeroKnowledgeDocument document = presenter.fromStringToDocument(data.getText());
         String hash = document.toCredentialHash();
-
         ctx.render(hash);
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);
@@ -316,8 +328,10 @@ public class DemoHandler extends AppnetHandler {
   public void determinePresentationCredentialHash(Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        DriverAboveAgePresentation dld = JsonUtils.getGson().fromJson(data.getText(), DriverAboveAgePresentation.class);
-        String hash = dld.toCredentialHash();
+        DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
+        DriverAboveAgePresentation dld = presenter.fromStringToDocument(data.getText());
+        String hash = dld.getCredentialHashForVerifiableCredentialByIndex(0);
+
         ctx.render(hash);
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);

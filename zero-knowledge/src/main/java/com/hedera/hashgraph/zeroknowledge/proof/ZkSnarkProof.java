@@ -3,30 +3,43 @@ package com.hedera.hashgraph.zeroknowledge.proof;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ZkSnarkProof {
+public class ZkSnarkProof implements PresentationProof {
     private static final String TYPE = "ZkSnarkProof";
 
-    @Expose(serialize = true, deserialize = true)
+    @Expose
     @SerializedName(ZkSnarkProofJsonProperties.TYPE)
     private String type;
 
-    @Expose(serialize = true, deserialize = true)
-    @SerializedName(ZkSnarkProofJsonProperties.SIGNATURE)
-    private String signature;
+    @Expose
+    @SerializedName(ZkSnarkProofJsonProperties.ZK_SIGNATURE)
+    private String zkSignature;
 
-    @Expose(serialize = true, deserialize = true)
+    @Expose
     @SerializedName(ZkSnarkProofJsonProperties.SNARK_PROOF)
     private String snarkProof;
 
     public ZkSnarkProof() {
-        this.type = TYPE;
+        this(null, null);
     }
 
+    public ZkSnarkProof(String zkSignature, String snarkProof) {
+        this.type = TYPE;
+        this.zkSignature = zkSignature;
+        this.snarkProof = snarkProof;
+    }
+
+    @Override
     public String getType() {
         return type;
     }
 
-    public String getSnarkProof() {
+    @Override
+    public String getSignature() {
+        return zkSignature;
+    }
+
+    @Override
+    public String getProof() {
         return snarkProof;
     }
 
@@ -38,11 +51,7 @@ public class ZkSnarkProof {
         this.snarkProof = snarkProof;
     }
 
-    public String getSignature() {
-        return signature;
-    }
-
-    public void setSignature(String signature) {
-        this.signature = signature;
+    public void setZkSignature(String zkSignature) {
+        this.zkSignature = zkSignature;
     }
 }

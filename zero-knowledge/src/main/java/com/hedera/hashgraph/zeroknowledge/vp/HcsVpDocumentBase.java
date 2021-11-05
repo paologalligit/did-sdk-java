@@ -8,8 +8,8 @@ import com.hedera.hashgraph.identity.utils.SingleToArrayTypeAdapterFactory;
 
 import java.util.List;
 
-public class HcsVpDocumentBase<T extends VerifiableCredentialBase> extends HcsPresentationBase {
-    @Expose(serialize = true, deserialize = true)
+public abstract class HcsVpDocumentBase<T extends VerifiableCredentialBase> extends HcsPresentationBase {
+    @Expose
     @SerializedName(HcsVpDocumentJsonProperties.VERIFIABLE_CREDENTIAL)
     @JsonAdapter(SingleToArrayTypeAdapterFactory.class)
     protected List<T> verifiableCredential;
@@ -37,5 +37,21 @@ public class HcsVpDocumentBase<T extends VerifiableCredentialBase> extends HcsPr
 
     public void addVerifiableCredential(T verifiableCredential) {
         this.verifiableCredential.add(verifiableCredential);
+    }
+
+    public List<T> getVerifiableCredential() {
+        return verifiableCredential;
+    }
+
+    public void setVerifiableCredential(List<T> verifiableCredential) {
+        this.verifiableCredential = verifiableCredential;
+    }
+
+    public String getCredentialHashForVerifiableCredentialByIndex(int verifiableCredentialIndex) {
+        if (verifiableCredentialIndex < 0 || verifiableCredentialIndex > this.verifiableCredential.size()) {
+            throw new IllegalStateException();
+        }
+
+        return this.verifiableCredential.get(verifiableCredentialIndex).toCredentialHash();
     }
 }
