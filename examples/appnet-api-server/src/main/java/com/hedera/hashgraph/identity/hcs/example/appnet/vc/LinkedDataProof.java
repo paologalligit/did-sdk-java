@@ -23,8 +23,6 @@ public class LinkedDataProof {
   private String verificationMethod;
   @Expose
   private String jws;
-  @Expose
-  private String signature;
 
   public String getCreator() {
     return creator;
@@ -88,13 +86,5 @@ public class LinkedDataProof {
 
   public void setJws(final String jws) {
     this.jws = jws;
-  }
-
-  public String getSignature() {
-    return signature;
-  }
-
-  public void setSignature(String signature) {
-    this.signature = signature;
   }
 }
