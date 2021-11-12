@@ -1,10 +1,7 @@
 package com.hedera.hashgraph.zeroknowledge.vc;
 
-
-
-import com.hedera.hashgraph.zeroknowledge.mock.*;
-
-import java.util.Arrays;
+import io.horizen.common.librustsidechains.*;
+import io.horizen.common.poseidonnative.PoseidonHash;
 
 public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible {
     private final byte[] propertyKey;
@@ -16,38 +13,35 @@ public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible 
     }
 
     @Override
-    public FieldElement toFieldElement() throws MerkleTreeLeafException {
-        try {
-            FieldElement keyField = FieldElement.deserialize(propertyKey);
-            // TODO: check that the deserialization is correct
-            FieldElement valueFields = FieldElement.deserialize(propertyValue);
+    public FieldElement toFieldElement() throws FieldElementConversionException {
+        FieldElement keyField = null, valueFields = null;
+        PoseidonHash hash = null;
 
-            PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
+        try {
+            keyField = FieldElement.deserialize(propertyKey);
+            valueFields = FieldElement.deserialize(propertyValue);
+
+            hash = PoseidonHash.getInstanceConstantLength(2);
             hash.update(keyField);
             hash.update(valueFields);
 
-            FieldElement hashedValue = hash.finalizeHash();
-
+            return hash.finalizeHash();
+        } catch (DeserializationException e) {
+            throw new FieldElementConversionException("Cannot deserialize key or value to field element");
+        } catch (FinalizationException e) {
+            throw new FieldElementConversionException("Cannot finalize merkle leaf hash");
+        } finally {
             closeAll(keyField, valueFields, hash);
-
-            return hashedValue;
-        } catch (FieldElementException e) {
-            throw new MerkleTreeLeafException("Cannot calculate leaf", e);
         }
     }
 
     private void closeAll(AutoCloseable ...autoCloseable) {
-        Arrays.stream(autoCloseable).forEach(closeable -> {
+        for (AutoCloseable closeable : autoCloseable) {
             try {
                 closeable.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        });
-    }
-
-    @Override
-    public void close() throws Exception {
-
+        }
     }
 }
