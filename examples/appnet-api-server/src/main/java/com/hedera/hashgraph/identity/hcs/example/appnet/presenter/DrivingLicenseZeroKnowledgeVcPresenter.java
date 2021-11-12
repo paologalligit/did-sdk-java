@@ -10,6 +10,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKno
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
 import com.hedera.hashgraph.identity.hcs.presenter.HcsVcDocumentVcPresenter;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
+import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
 import org.threeten.bp.Instant;
@@ -67,7 +68,7 @@ public class DrivingLicenseZeroKnowledgeVcPresenter extends HcsVcDocumentVcPrese
 
         JsonObject proofJson = jsonDocument.get(HcsVcDocumentJsonProperties.PROOF).getAsJsonObject();
         String zkSignature = proofJson.get(HcsVcDocumentJsonProperties.ZK_SIGNATURE).getAsString();
-        ZeroKnowledgeSignature<DrivingLicense> signature = new ZkSignature<>(zkSignature);
+        ZeroKnowledgeSignature<DrivingLicense> signature = new ZkSignature<>(zkSignature, new MerkleTreeFactoryImpl());
         document.setZeroKnowledgeSignature(signature);
 
         Ed25519CredentialProof proof = initializeProof(jsonDocument);

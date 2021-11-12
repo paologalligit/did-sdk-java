@@ -87,7 +87,7 @@ class HcsVcDocumentBaseTest extends NetworkReadyTestBase {
     assertFalse(Strings.isNullOrEmpty(json));
 
     // Convert back to VC document and compare
-    HcsVcDocumentBase<DemoAccessCredential> vcFromJson = HcsVcDocumentBase.fromJson(json, DemoAccessCredential.class);
+    HcsVcDocumentBase<DemoAccessCredential> vcFromJson = HcsVcDocumentBase.fromJson(json, HcsVcDocument.class, DemoAccessCredential.class);
     // Test simple properties
     assertNotNull(vcFromJson);
     assertEquals(vc.getType(), vcFromJson.getType());

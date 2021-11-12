@@ -21,6 +21,7 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.zeroknowledge.circuit.ZkSnarkProofProvider;
+import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,7 +221,9 @@ public class DemoHandler extends AppnetHandler {
         proof.sign(privateKey, presenter.fromDocumentToString(vc));
         vc.setProof(proof);
 
-        ZkSignature<DrivingLicense> zkSignature = new ZkSignature<>();
+        ZkSignature<DrivingLicense> zkSignature = new ZkSignature<>(
+                new MerkleTreeFactoryImpl()
+        );
         zkSignature.sign(privateKey, vc);
         vc.setZeroKnowledgeSignature(zkSignature);
 
