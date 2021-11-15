@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
+import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.utils.MerkleTreeUtils;
 import io.horizen.common.librustsidechains.*;
 import io.horizen.common.merkletreenative.BaseMerkleTree;
@@ -16,13 +16,13 @@ public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSi
     @Expose
     private String signature;
 
-    private final MerkleTreeFactoryImpl merkleTreeFactory;
+    private final MerkleTreeFactory merkleTreeFactory;
 
-    public ZkSignature(MerkleTreeFactoryImpl merkleTreeFactory) {
+    public ZkSignature(MerkleTreeFactory merkleTreeFactory) {
         this(null, merkleTreeFactory);
     }
 
-    public ZkSignature(String signature, MerkleTreeFactoryImpl merkleTreeFactory) {
+    public ZkSignature(String signature, MerkleTreeFactory merkleTreeFactory) {
         this.signature = signature;
         this.merkleTreeFactory = merkleTreeFactory;
     }

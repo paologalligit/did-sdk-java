@@ -6,20 +6,36 @@ import io.horizen.common.librustsidechains.FinalizationException;
 import io.horizen.common.poseidonnative.PoseidonHash;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.hedera.hashgraph.zeroknowledge.utils.ByteUtils.chunkByteArrayToFieldElementsList;
 
 public final class MerkleTreeUtils {
     public static FieldElement computeHash(String documentId, FieldElement merkleTreeRoot) throws DeserializationException, FinalizationException {
-        FieldElement documentIdField = FieldElement.deserialize(documentId.getBytes(StandardCharsets.UTF_8));
+        // This will disappear when issue https://github.com/HorizenOfficial/sc_cryptolib_common/issues/4 is implemented
+        List<byte[]> byteChunks = chunkByteArrayToFieldElementsList(documentId.getBytes(StandardCharsets.UTF_8));
+        List<FieldElement> fieldElementChunks = serializeBytesToFieldsElementsList(byteChunks);
 
-        PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
-        hash.update(documentIdField);
-        hash.update(merkleTreeRoot);
+        int hashableParamsLength = fieldElementChunks.size() + 1;
+        try (PoseidonHash hash = PoseidonHash.getInstanceConstantLength(hashableParamsLength)) {
+            for (FieldElement chunk : fieldElementChunks) {
+                hash.update(chunk);
+            }
+            hash.update(merkleTreeRoot);
 
-        documentIdField.close();
-        merkleTreeRoot.close();
-        hash.close();
+            merkleTreeRoot.close();
 
-        return hash.finalizeHash();
+            return hash.finalizeHash();
+        }
+    }
+
+    private static List<FieldElement> serializeBytesToFieldsElementsList(List<byte[]> byteChunks) throws DeserializationException {
+        List<FieldElement> result = new ArrayList<>();
+        for (byte[] currentChunk : byteChunks) {
+            result.add(FieldElement.deserialize(currentChunk));
+        }
+        return result;
     }
 
     /* TODO: this could be replaced by having all the annotated methods return a ConvertibleInterface of some kind that implements

@@ -15,13 +15,16 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DriverAboveAge
 import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DrivingLicenseZeroKnowledgeVcPresenter;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
+import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgeVerifiableCredential;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProofProvider;
 import com.hedera.hashgraph.zeroknowledge.circuit.ZkSnarkProofProvider;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
+import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +36,7 @@ import ratpack.jackson.Jackson;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -171,7 +175,7 @@ public class DemoHandler extends AppnetHandler {
         proof.sign(privateKey, vc.toNormalizedJson(true));
         vc.setProof(proof);
 
-        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
+//        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
         ctx.render(vc.toNormalizedJson(false));
       } catch (Exception e) {
         ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
@@ -227,7 +231,7 @@ public class DemoHandler extends AppnetHandler {
         zkSignature.sign(privateKey, vc);
         vc.setZeroKnowledgeSignature(zkSignature);
 
-        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
+//        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
         ctx.render(presenter.fromDocumentToString(vc));
       } catch (Exception e) {
         ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
@@ -339,6 +343,30 @@ public class DemoHandler extends AppnetHandler {
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);
         ctx.render(Jackson.json(new ErrorResponse("Invalid verifiable credential document received.")));
+      }
+    });
+  }
+
+  public void verifyPresentation(Context ctx) {
+    ctx.getRequest().getBody().then(data -> {
+      try {
+        DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
+        DriverAboveAgePresentation dld = presenter.fromStringToDocument(data.getText());
+
+        DriverAboveAgeVerifiableCredential drivingLicense = dld.getVerifiableCredential().get(0);
+        PresentationProof presentationProof = drivingLicense.getProof();
+        String snarkProof = presentationProof.getProof();
+        ZeroKnowledgeProofProvider zkProofProvider = new ZkSnarkProofProvider();
+
+        if (zkProofProvider.verifyProof(snarkProof.getBytes(StandardCharsets.UTF_8))) {
+          ctx.render("Proof verified");
+        } else {
+          ctx.render("Proof not valid");
+        }
+
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.BAD_REQUEST);
+        ctx.render(Jackson.json(new ErrorResponse("Invalid verifiable presentation document received.")));
       }
     });
   }
