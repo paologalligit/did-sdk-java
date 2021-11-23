@@ -9,6 +9,7 @@ import com.hedera.hashgraph.identity.hcs.MessageEnvelope;
 import com.hedera.hashgraph.identity.hcs.did.HcsDid;
 import com.hedera.hashgraph.identity.hcs.did.HcsDidMessage;
 import com.hedera.hashgraph.identity.hcs.example.appnet.AppnetStorage;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
 import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DriverAboveAgeVpPresenter;
@@ -17,15 +18,23 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgeVerifiableCredential;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
+import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProofProvider;
-import com.hedera.hashgraph.zeroknowledge.circuit.ZkSnarkProofProvider;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper.AgeCircuitDataMapper;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.interactor.AgeCircuitInteractor;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeProofProvider;
+import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeSnarkProofProviderBase;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
 import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
+import com.squareup.okhttp.Response;
+import io.github.cdimascio.dotenv.Dotenv;
+import io.horizen.common.schnorrnative.SchnorrSecretKey;
+import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -36,7 +45,6 @@ import ratpack.jackson.Jackson;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,7 +55,8 @@ import java.util.Map;
  */
 public class DemoHandler extends AppnetHandler {
   public static final String HEADER_PRIVATE_KEY = "privateKey";
-  private static Logger log = LoggerFactory.getLogger(DemoHandler.class);
+  public static final String HEADER_SCHNORR_SECRET_KEY = "schnorrSecretKey";
+  private static final Logger log = LoggerFactory.getLogger(DemoHandler.class);
 
   /**
    * Instantiates the handler.
@@ -165,8 +174,10 @@ public class DemoHandler extends AppnetHandler {
                 new DrivingLicense(req.getOwner(), req.getFirstName(), req.getLastName(),
                         req.getDrivingLicenseCategories(), req.getBirthDate()));
 
-        CredentialSchema schema = new CredentialSchema("http://localhost:5050/driving-license-schema.json",
-                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE);
+        CredentialSchema schema = new CredentialSchema(
+                "http://localhost:5050/driving-license-schema.json",
+                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE
+        );
 
         vc.setCredentialSchema(schema);
 
@@ -175,7 +186,7 @@ public class DemoHandler extends AppnetHandler {
         proof.sign(privateKey, vc.toNormalizedJson(true));
         vc.setProof(proof);
 
-//        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
+        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
         ctx.render(vc.toNormalizedJson(false));
       } catch (Exception e) {
         ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
@@ -215,12 +226,16 @@ public class DemoHandler extends AppnetHandler {
                 req.getDrivingLicenseCategories(), req.getBirthDate());
         vc.addCredentialSubject(drivingLicense);
 
-        CredentialSchema schema = new CredentialSchema("http://localhost:5050/driving-license-schema.json",
-                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE);
+        CredentialSchema schema = new CredentialSchema(
+                "http://localhost:5050/driving-license-schema.json",
+                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE
+        );
 
         vc.setCredentialSchema(schema);
 
         PrivateKey privateKey = getPrivateKeyFromHeader(ctx);
+        SchnorrSecretKey schnorrSecretKey = getSchnorrSecretKeyFromHeader(ctx);
+
         Ed25519CredentialProof proof = new Ed25519CredentialProof(req.getIssuer());
         proof.sign(privateKey, presenter.fromDocumentToString(vc));
         vc.setProof(proof);
@@ -228,10 +243,10 @@ public class DemoHandler extends AppnetHandler {
         ZkSignature<DrivingLicense> zkSignature = new ZkSignature<>(
                 new MerkleTreeFactoryImpl()
         );
-        zkSignature.sign(privateKey, vc);
+        zkSignature.sign(schnorrSecretKey.serializeSecretKey(), vc);
         vc.setZeroKnowledgeSignature(zkSignature);
 
-//        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
+        storage.registerCredentialIssuance(vc.toCredentialHash(), privateKey.getPublicKey());
         ctx.render(presenter.fromDocumentToString(vc));
       } catch (Exception e) {
         ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
@@ -257,10 +272,14 @@ public class DemoHandler extends AppnetHandler {
 
       DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
       DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator(
-              new ZkSnarkProofProvider()
+              new ZkSnarkAgeProofProvider(
+                      new AgeCircuitInteractor(),
+                      new AgeCircuitDataMapper(new MerkleTreeFactoryImpl())
+              )
       );
       Map<String, Object> metadataMap = new HashMap<>();
       metadataMap.put("challenge", req.get("challenge").getAsString());
+      metadataMap.put("ageThreshold", req.get("ageThreshold").getAsString());
 
       DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(
               Collections.singletonList(doc),
@@ -287,6 +306,19 @@ public class DemoHandler extends AppnetHandler {
       return PrivateKey.fromString(privateKeyString);
     } catch (Exception ex) {
       throw new IllegalArgumentException("Provided private key is invalid.", ex);
+    }
+  }
+
+  private SchnorrSecretKey getSchnorrSecretKeyFromHeader(final Context ctx) {
+    String privateKeyString = ctx.getRequest().getHeaders().get(HEADER_SCHNORR_SECRET_KEY);
+    if (Strings.isNullOrEmpty(privateKeyString)) {
+      throw new IllegalArgumentException("Schnorr secret key is missing in the request header.");
+    }
+
+    try {
+      return SchnorrSecretKey.deserialize(privateKeyString.getBytes(StandardCharsets.UTF_8));
+    } catch (Exception ex) {
+      throw new IllegalArgumentException("Provided Schnorr secret key is invalid.", ex);
     }
   }
 
@@ -356,18 +388,35 @@ public class DemoHandler extends AppnetHandler {
         DriverAboveAgeVerifiableCredential drivingLicense = dld.getVerifiableCredential().get(0);
         PresentationProof presentationProof = drivingLicense.getProof();
         String snarkProof = presentationProof.getProof();
-        ZeroKnowledgeProofProvider zkProofProvider = new ZkSnarkProofProvider();
+        ZkSnarkAgeProofProvider zkProofProvider = new ZkSnarkAgeProofProvider(
+                new AgeCircuitInteractor(),
+                new AgeCircuitDataMapper(new MerkleTreeFactoryImpl())
+        );
 
-        if (zkProofProvider.verifyProof(snarkProof.getBytes(StandardCharsets.UTF_8))) {
-          ctx.render("Proof verified");
-        } else {
-          ctx.render("Proof not valid");
-        }
+//        if (zkProofProvider.verifyProof()) {
+//          ctx.render("Proof verified");
+//        } else {
+//          ctx.render("Proof not valid");
+//        }
 
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);
         ctx.render(Jackson.json(new ErrorResponse("Invalid verifiable presentation document received.")));
       }
+    });
+  }
+
+  public void createProvingKeys(Context ctx) {
+    ctx.getRequest().getBody().then(data -> {
+      AgeCircuitInteractor circuitInteractor = new AgeCircuitInteractor();
+
+      Dotenv dotenv = Dotenv.configure().load();
+      String provingKeyPath = dotenv.get("PROVING_KEY_PATH");
+      String verificationKeyPath = dotenv.get("VERIFICATION_KEY_PATH");
+
+      circuitInteractor.setupCircuit(provingKeyPath, verificationKeyPath);
+
+      ctx.getResponse().status(200);
     });
   }
 }

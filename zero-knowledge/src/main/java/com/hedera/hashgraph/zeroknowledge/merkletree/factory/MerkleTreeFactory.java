@@ -11,5 +11,5 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public interface MerkleTreeFactory {
-    <T extends CredentialSubject> BaseMerkleTree getMerkleTreeRoot(List<T> credentialSubject) throws FieldElementConversionException, MerkleTreeException, InitializationException, InvocationTargetException, IllegalAccessException, FinalizationException;
+    <T extends CredentialSubject> BaseMerkleTree getMerkleTree(List<T> credentialSubject) throws FieldElementConversionException, MerkleTreeException, InitializationException, InvocationTargetException, IllegalAccessException, FinalizationException;
 }

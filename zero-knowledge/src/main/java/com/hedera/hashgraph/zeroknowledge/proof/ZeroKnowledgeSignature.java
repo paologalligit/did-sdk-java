@@ -6,5 +6,5 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 
 public interface ZeroKnowledgeSignature<T extends CredentialSubject> {
     String getSignature();
-    void sign(PrivateKey privateKey, HcsVcDocumentBase<T> vcDocument) throws Exception;
+    void sign(byte[] privateKey, HcsVcDocumentBase<T> vcDocument) throws Exception;
 }

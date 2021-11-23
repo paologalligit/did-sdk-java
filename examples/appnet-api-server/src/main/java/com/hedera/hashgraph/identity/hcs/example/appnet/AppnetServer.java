@@ -212,6 +212,7 @@ public class AppnetServer {
 
                     // REST API endpoints for demo functions that in a normal environment
                     // would be run on the client side.
+                    .post("demo/create-proving-keys", ctx -> demoHandler.createProvingKeys(ctx))
                     .post("demo/generate-did", ctx -> demoHandler.generateDid(ctx))
                     .post("demo/sign-did-message", ctx -> demoHandler.signDidMessage(ctx))
                     .post("demo/generate-driving-license", ctx -> demoHandler.generateDrivingLicense(ctx))

@@ -18,13 +18,13 @@ class CredentialSubjectMerkleTreeLeafTest {
     @Test
     public void merkleTreeLeafHashIsCorrectlyComputed() throws DeserializationException, FieldElementConversionException, FinalizationException {
         // Arrange
-        byte[] key = "key".getBytes(StandardCharsets.UTF_8);
-        byte[] value = "value".getBytes(StandardCharsets.UTF_8);
+        String key = "key";
+        String value = "value";
 
         CredentialSubjectMerkleTreeLeaf merkleTreeLeaf = new CredentialSubjectMerkleTreeLeaf(key, value);
 
-        FieldElement keyFieldElement = FieldElement.deserialize(key);
-        FieldElement valueFieldElement = FieldElement.deserialize(value);
+        FieldElement keyFieldElement = FieldElement.deserialize(key.getBytes(StandardCharsets.UTF_8));
+        FieldElement valueFieldElement = FieldElement.deserialize(value.getBytes(StandardCharsets.UTF_8));
 
         PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
         hash.update(keyFieldElement);

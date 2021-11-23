@@ -46,6 +46,7 @@ public abstract class HcsVcDocumentBase<T extends CredentialSubject> extends Hcs
    * Please note this conversion respects only the fields of the base VC document. All other fields are ignored.
    *
    * @param <U>                    The type of the credential subject.
+   * @param <E>                    The type of the vc document.
    * @param json                   The VC document as JSON string.
    * @param credentialSubjectClass The type of the credential subject inside.
    * @return The {@link HcsVcDocumentBase} object.

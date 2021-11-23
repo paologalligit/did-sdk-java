@@ -48,7 +48,7 @@ class HcsVcDocumentZeroKnowledgeTest {
     }
 
     @Test
-    public void test() {
+    public void createAZeroKnowledgeVcDocument_TheZKSignatureIsAddedAsCredentialHashField() {
         // Arrange
 
         // Act

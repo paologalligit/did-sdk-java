@@ -1,9 +1,12 @@
 package com.hedera.hashgraph.zeroknowledge.utils;
 
+import io.horizen.common.librustsidechains.DeserializationException;
 import io.horizen.common.librustsidechains.FieldElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.nio.charset.StandardCharsets;
 
 import static com.hedera.hashgraph.zeroknowledge.utils.MerkleTreeUtils.computeHash;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -11,9 +14,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(MockitoExtension.class)
 class MerkleTreeUtilsTest {
     @Test
-    public void testCorrectComputeHash() {
+    public void testCorrectComputeHash() throws DeserializationException {
         // Arrange
-        String documentId = "https://example.appnet.com/driving-license/e0b5110d-bee8-4c81-9c00-835402073ed0";
+        String documentIdString = "https://example.appnet.com/";
+        FieldElement documentId = FieldElement.deserialize(documentIdString.getBytes(StandardCharsets.UTF_8));
         long fakeSeed = 123;
         FieldElement merkleTreeRoot = FieldElement.createRandom(fakeSeed);
 

@@ -37,7 +37,7 @@ class MerkleTreeFactoryImplTest {
 
         // Act
         try {
-            merkleTreeFactory.getMerkleTreeRoot(Collections.singletonList(credentialSubject));
+            merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject));
         } catch (Exception e) {
             fail("An unexpected exception was thrown");
         }
@@ -51,15 +51,9 @@ class MerkleTreeFactoryImplTest {
         // Arrange
         TestCredentialSubject credentialSubject = new TestCredentialSubject(name, surname, age);
 
-        CredentialSubjectMerkleTreeLeaf nameLeaf = new CredentialSubjectMerkleTreeLeaf(
-                "name".getBytes(StandardCharsets.UTF_8), serializeFieldObjectToByteArray(name)
-        );
-        CredentialSubjectMerkleTreeLeaf surnameLeaf = new CredentialSubjectMerkleTreeLeaf(
-                "surname".getBytes(StandardCharsets.UTF_8), serializeFieldObjectToByteArray(surname)
-        );
-        CredentialSubjectMerkleTreeLeaf ageLeaf = new CredentialSubjectMerkleTreeLeaf(
-                "age".getBytes(StandardCharsets.UTF_8), serializeFieldObjectToByteArray(age)
-        );
+        CredentialSubjectMerkleTreeLeaf nameLeaf = new CredentialSubjectMerkleTreeLeaf("name", name);
+        CredentialSubjectMerkleTreeLeaf surnameLeaf = new CredentialSubjectMerkleTreeLeaf("surname", surname);
+        CredentialSubjectMerkleTreeLeaf ageLeaf = new CredentialSubjectMerkleTreeLeaf("age", age);
 
         FieldElement nameFieldElement = nameLeaf.toFieldElement();
         FieldElement surnameFieldElement = surnameLeaf.toFieldElement();
@@ -67,7 +61,7 @@ class MerkleTreeFactoryImplTest {
 
 
         // Act
-        BaseMerkleTree merkleTree = merkleTreeFactory.getMerkleTreeRoot(Collections.singletonList(credentialSubject));
+        BaseMerkleTree merkleTree = merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject));
 
 
         // Assert
@@ -85,11 +79,9 @@ class MerkleTreeFactoryImplTest {
 
 
         // Act
-        Exception exception = assertThrows(MerkleTreeException.class, () -> {
-            merkleTreeFactory.getMerkleTreeRoot(Collections.singletonList(credentialSubject));
-        });
+        Exception exception = assertThrows(FieldElementConversionException.class, () -> merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject)));
 
         // Assert
-        assertTrue(exception.getMessage().contains("Cannot serialize credential subject field"));
+        assertTrue(exception.getMessage().contains("Cannot deserialize label or value to field element"));
     }
 }
