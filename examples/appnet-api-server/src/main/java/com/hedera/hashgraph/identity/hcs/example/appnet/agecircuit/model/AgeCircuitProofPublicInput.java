@@ -24,6 +24,8 @@ public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput
     private final SchnorrSignature zkSignature;
 
     private final FieldElement currentYear;
+    private final FieldElement currentMonth;
+    private final FieldElement currentDay;
     private final FieldElement ageThreshold;
 
     private final SchnorrPublicKey holderPublicKey;
@@ -34,7 +36,7 @@ public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput
 
     private final String provingKeyPath;
 
-    public AgeCircuitProofPublicInput(FieldElement dayValue, FieldElement monthValue, FieldElement yearValue, FieldElement dayLabel, FieldElement monthLabel, FieldElement yearLabel, FieldBasedMerklePath dayMerklePath, FieldBasedMerklePath monthMerklePath, FieldBasedMerklePath yearMerklePath, FieldElement merkleTreeRoot, SchnorrSignature signedChallenge, SchnorrSignature zkSignature, FieldElement currentYear, FieldElement ageThreshold, SchnorrPublicKey holderPublicKey, SchnorrPublicKey authorityPublicKey, FieldElement challenge, FieldElement documentId, String provingKeyPath) {
+    public AgeCircuitProofPublicInput(FieldElement dayValue, FieldElement monthValue, FieldElement yearValue, FieldElement dayLabel, FieldElement monthLabel, FieldElement yearLabel, FieldBasedMerklePath dayMerklePath, FieldBasedMerklePath monthMerklePath, FieldBasedMerklePath yearMerklePath, FieldElement merkleTreeRoot, SchnorrSignature signedChallenge, SchnorrSignature zkSignature, FieldElement currentYear, FieldElement currentMonth, FieldElement currentDay, FieldElement ageThreshold, SchnorrPublicKey holderPublicKey, SchnorrPublicKey authorityPublicKey, FieldElement challenge, FieldElement documentId, String provingKeyPath) {
         this.dayValue = dayValue;
         this.monthValue = monthValue;
         this.yearValue = yearValue;
@@ -48,6 +50,8 @@ public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput
         this.signedChallenge = signedChallenge;
         this.zkSignature = zkSignature;
         this.currentYear = currentYear;
+        this.currentMonth = currentMonth;
+        this.currentDay = currentDay;
         this.ageThreshold = ageThreshold;
         this.holderPublicKey = holderPublicKey;
         this.authorityPublicKey = authorityPublicKey;
@@ -106,6 +110,14 @@ public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput
 
     public FieldElement getCurrentYear() {
         return currentYear;
+    }
+
+    public FieldElement getCurrentMonth() {
+        return currentMonth;
+    }
+
+    public FieldElement getCurrentDay() {
+        return currentDay;
     }
 
     public FieldElement getAgeThreshold() {

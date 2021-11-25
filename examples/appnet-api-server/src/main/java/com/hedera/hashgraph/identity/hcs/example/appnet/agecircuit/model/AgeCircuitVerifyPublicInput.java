@@ -6,7 +6,9 @@ import io.horizen.common.schnorrnative.SchnorrPublicKey;
 
 public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInput {
     private final byte[] proof;
-    private final FieldElement currentDateTimestamp;
+    private final FieldElement currentYear;
+    private final FieldElement currentMonth;
+    private final FieldElement currentDay;
     private final FieldElement ageThreshold;
     private final SchnorrPublicKey holderPublicKey;
     private final SchnorrPublicKey authorityPublicKey;
@@ -14,9 +16,11 @@ public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInp
     private final FieldElement documentId;
     private final String verificationKeyPath;
 
-    public AgeCircuitVerifyPublicInput(byte[] proof, FieldElement currentDateTimestamp, FieldElement ageThreshold, SchnorrPublicKey holderPublicKey, SchnorrPublicKey authorityPublicKey, FieldElement challenge, FieldElement documentId, String verificationKeyPath) {
+    public AgeCircuitVerifyPublicInput(byte[] proof, FieldElement currentYear, FieldElement currentMonth, FieldElement currentDay, FieldElement ageThreshold, SchnorrPublicKey holderPublicKey, SchnorrPublicKey authorityPublicKey, FieldElement challenge, FieldElement documentId, String verificationKeyPath) {
         this.proof = proof;
-        this.currentDateTimestamp = currentDateTimestamp;
+        this.currentYear = currentYear;
+        this.currentMonth = currentMonth;
+        this.currentDay = currentDay;
         this.ageThreshold = ageThreshold;
         this.holderPublicKey = holderPublicKey;
         this.authorityPublicKey = authorityPublicKey;
@@ -29,8 +33,16 @@ public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInp
         return proof;
     }
 
-    public FieldElement getCurrentDateTimestamp() {
-        return currentDateTimestamp;
+    public FieldElement getCurrentYear() {
+        return currentYear;
+    }
+
+    public FieldElement getCurrentMonth() {
+        return currentMonth;
+    }
+
+    public FieldElement getCurrentDay() {
+        return currentDay;
     }
 
     public FieldElement getAgeThreshold() {

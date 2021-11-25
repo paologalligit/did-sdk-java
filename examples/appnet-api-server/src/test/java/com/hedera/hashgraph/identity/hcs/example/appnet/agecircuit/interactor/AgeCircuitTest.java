@@ -18,6 +18,7 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.zeroknowledge.circuit.model.CircuitProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.exception.VerifiablePresentationGenerationException;
+import com.hedera.hashgraph.zeroknowledge.exception.ZeroKnowledgeVerifyProviderException;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
 import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
@@ -35,6 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
@@ -79,8 +82,10 @@ class AgeCircuitTest {
 
         Instant timestamp = Instant.now();
         FieldElement challenge = FieldElement.deserialize("fake-challenge".getBytes(StandardCharsets.UTF_8));
-        FieldElement currentYear = FieldElement.createFromLong(timestamp.toEpochMilli());
-        FieldElement ageThreshold = FieldElement.createFromLong(18 * 31536000000L);
+        FieldElement currentYear = FieldElement.createFromLong(2021);
+        FieldElement currentMonth = FieldElement.createFromLong(11);
+        FieldElement currentDay = FieldElement.createFromLong(24);
+        FieldElement ageThreshold = FieldElement.createFromLong(18);
         FieldElement documentId = FieldElement.deserialize("fake-documentId".getBytes(StandardCharsets.UTF_8));
 
         SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
@@ -102,7 +107,7 @@ class AgeCircuitTest {
 
         CircuitProofPublicInput circuitProofPublicInput = new AgeCircuitProofPublicInput(
                 dayValue, monthValue, yearValue, dayLabel, monthLabel, yearLabel, dayMerklePath, monthMerklePath, yearMerklePath,
-                merkleTreeRoot, signedChallenge, zkSignature, currentYear, ageThreshold, holderPublicKey, authorityPublicKey,
+                merkleTreeRoot, signedChallenge, zkSignature, currentYear, currentMonth, currentDay, ageThreshold, holderPublicKey, authorityPublicKey,
                 challenge, documentId, PROVING_KEY_PATH
         );
 
@@ -121,7 +126,7 @@ class AgeCircuitTest {
 
         // Arrange
         AgeCircuitVerifyPublicInput ageCircuitVerifyPublicInput = new AgeCircuitVerifyPublicInput(
-                proofResult, currentYear, ageThreshold, holderPublicKey, authorityPublicKey,
+                proofResult, currentYear, currentMonth, currentDay, ageThreshold, holderPublicKey, authorityPublicKey,
                 challenge, documentId, VERIFICATION_KEY_PATH
         );
 
@@ -149,7 +154,7 @@ class AgeCircuitTest {
         licenseDocument.setId("fake-documentId");
         licenseDocument.setIssuer(new Issuer(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey())));
         Instant timestamp = Instant.now();
-        licenseDocument.setIssuanceDate(Instant.ofEpochMilli(1637595909349L));
+        licenseDocument.setIssuanceDate(timestamp);
         DrivingLicense drivingLicense = new DrivingLicense(ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()), "fake-firstName", "fake-lastName",
                 new ArrayList<>(), new BirthDate(3, 12, 1991));
         licenseDocument.setCredentialSubject(Collections.singletonList(drivingLicense));
@@ -179,7 +184,9 @@ class AgeCircuitTest {
         assertNotNull(proofResult);
 
         // Arrange
-        long currentDateTimestamp = 1637595909349L;
+        long currentYear = 2021;
+        long currentMonth = 11;
+        long currentDay = 24;
         int ageThreshold = 18;
         String holderPublicKeyString = ByteUtils.bytesToHex(holderPublicKey.serializePublicKey());
         String authorityPublicKeyString = ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey());
@@ -187,7 +194,7 @@ class AgeCircuitTest {
         String documentId = "fake-documentId";
 
         VerifyAgePublicInput verifyAgePublicInput = new VerifyAgePublicInput(
-                proofResult, currentDateTimestamp, ageThreshold, holderPublicKeyString, authorityPublicKeyString,
+                proofResult, currentYear, currentMonth, currentDay, ageThreshold, holderPublicKeyString, authorityPublicKeyString,
                 challenge, documentId, VERIFICATION_KEY_PATH
         );
 
@@ -204,7 +211,7 @@ class AgeCircuitTest {
         String holderPublicKey = document.getCredentialSubject().get(0).getId();
         // TODO: this is not the authority public key, we need to extract it
         String authorityPublicKey = document.getIssuer().getId();
-        long vcDocumentDate = document.getIssuanceDate().toEpochMilli();
+        Instant vcDocumentDate = document.getIssuanceDate();
 
         return new ProofAgePublicInput<>(
                 document.getCredentialSubject(),
@@ -220,7 +227,7 @@ class AgeCircuitTest {
     }
 
     @Test
-    public void testCreateProofFullFlow() throws DeserializationException, FieldElementConversionException, MerkleTreeException, InitializationException, InvocationTargetException, IllegalAccessException, FinalizationException, SchnorrSignatureException, VerifiablePresentationGenerationException {
+    public void testCreateProofFullFlow() throws DeserializationException, FieldElementConversionException, MerkleTreeException, InitializationException, InvocationTargetException, IllegalAccessException, FinalizationException, SchnorrSignatureException, VerifiablePresentationGenerationException, ZeroKnowledgeVerifyProviderException {
         // Arrange
         // the keys
         SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
@@ -238,7 +245,8 @@ class AgeCircuitTest {
         DrivingLicenseZeroKnowledgeDocument licenseDocument = new DrivingLicenseZeroKnowledgeDocument();
         licenseDocument.setId("fake-id");
         licenseDocument.setIssuer(new Issuer(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey())));
-        licenseDocument.setIssuanceDate(Instant.now());
+        Instant currentInstant = Instant.now();
+        licenseDocument.setIssuanceDate(currentInstant);
         DrivingLicense drivingLicense = new DrivingLicense(ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()), "fake-firstName", "fake-lastName",
                 new ArrayList<>(), new BirthDate(3, 12, 1991));
 
@@ -266,7 +274,7 @@ class AgeCircuitTest {
         presentationMetadata.put("secretKey", holderSecretKeyHex);
 
         DrivingLicenseVpGenerator generator = new DrivingLicenseVpGenerator(ageProofProvider);
-
+//        ageCircuitInteractor.setupCircuit(PROVING_KEY_PATH, VERIFICATION_KEY_PATH);
         // Act
         DriverAboveAgePresentation presentation = generator.generatePresentation(Collections.singletonList(licenseDocument), presentationMetadata);
         List<DriverAboveAgeVerifiableCredential> verifiableCredentials = presentation.getVerifiableCredential();
@@ -274,17 +282,23 @@ class AgeCircuitTest {
         byte[] proofResult = ByteUtils.hexStringToByteArray(presentationProof.getProof());
 
         // Arrange
-        FieldElement currentDateTimestamp = FieldElement.createFromLong(1637595909349L);
-        FieldElement ageThreshold = FieldElement.createFromLong(18);
-        FieldElement challenge = FieldElement.deserialize("fake-challenge".getBytes(StandardCharsets.UTF_8));
-        FieldElement documentId = FieldElement.deserialize("fake-id".getBytes(StandardCharsets.UTF_8));
+        LocalDateTime date = LocalDateTime.ofInstant(currentInstant, ZoneId.systemDefault());
+        long currentYear = date.getYear();
+        long currentMonth = date.getMonthValue();
+        long currentDay = date.getDayOfMonth();
+        int ageThreshold = 18;
+        String challenge = "fake-challenge";
+        String documentId = "fake-id";
 
-        AgeCircuitVerifyPublicInput verifyPublicInput = new AgeCircuitVerifyPublicInput(
-                proofResult, currentDateTimestamp, ageThreshold, holderPublicKey, authorityPublicKey,
-                challenge, documentId, VERIFICATION_KEY_PATH
+        VerifyAgePublicInput verifyPublicInput = new VerifyAgePublicInput(
+                proofResult, currentYear, currentMonth, currentDay, ageThreshold, ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()),
+                ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()), challenge, documentId, VERIFICATION_KEY_PATH
         );
 
+        // Act
+        boolean verifyResult = ageProofProvider.verifyProof(verifyPublicInput);
+
         // Assert
-        ageCircuitInteractor.verifyProof(verifyPublicInput);
+        assertTrue(verifyResult);
     }
 }

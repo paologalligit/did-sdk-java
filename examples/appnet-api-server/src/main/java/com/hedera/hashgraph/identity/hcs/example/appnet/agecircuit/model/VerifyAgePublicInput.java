@@ -4,7 +4,9 @@ import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeVerifyPubli
 
 public final class VerifyAgePublicInput implements ZeroKnowledgeVerifyPublicInput {
     private final byte[] proof;
-    private final long currentDateTimestamp;
+    private final long currentYear;
+    private final long currentMonth;
+    private final long currentDay;
     private final int ageThreshold;
     private final String holderPublicKey;
     private final String authorityPublicKey;
@@ -12,9 +14,11 @@ public final class VerifyAgePublicInput implements ZeroKnowledgeVerifyPublicInpu
     private final String documentId;
     private final String verificationKeyPath;
 
-    public VerifyAgePublicInput(byte[] proof, long currentDateTimestamp, int ageThreshold, String holderPublicKey, String authorityPublicKey, String challenge, String documentId, String verificationKeyPath) {
+    public VerifyAgePublicInput(byte[] proof, long currentYear, long currentMonth, long currentDay, int ageThreshold, String holderPublicKey, String authorityPublicKey, String challenge, String documentId, String verificationKeyPath) {
         this.proof = proof;
-        this.currentDateTimestamp = currentDateTimestamp;
+        this.currentYear = currentYear;
+        this.currentMonth = currentMonth;
+        this.currentDay = currentDay;
         this.ageThreshold = ageThreshold;
         this.holderPublicKey = holderPublicKey;
         this.authorityPublicKey = authorityPublicKey;
@@ -27,8 +31,16 @@ public final class VerifyAgePublicInput implements ZeroKnowledgeVerifyPublicInpu
         return proof;
     }
 
-    public long getCurrentDateTimestamp() {
-        return currentDateTimestamp;
+    public long getCurrentYear() {
+        return currentYear;
+    }
+
+    public long getCurrentMonth() {
+        return currentMonth;
+    }
+
+    public long getCurrentDay() {
+        return currentDay;
     }
 
     public int getAgeThreshold() {
@@ -54,5 +66,4 @@ public final class VerifyAgePublicInput implements ZeroKnowledgeVerifyPublicInpu
     public String getVerificationKeyPath() {
         return verificationKeyPath;
     }
-
 }

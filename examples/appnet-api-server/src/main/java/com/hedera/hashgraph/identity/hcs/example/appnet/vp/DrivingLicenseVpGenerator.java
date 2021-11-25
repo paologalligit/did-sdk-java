@@ -11,6 +11,7 @@ import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.vp.VpZeroKnowledgeGenerator;
 import org.jetbrains.annotations.NotNull;
+import org.threeten.bp.Instant;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
         String holderPublicKey = document.getCredentialSubject().get(0).getId();
         // TODO: this is not the authority public key, we need to extract it
         String authorityPublicKey = document.getIssuer().getId();
-        long vcDocumentDate = document.getIssuanceDate().toEpochMilli();
+        Instant vcDocumentDate = document.getIssuanceDate();
 
         return new ProofAgePublicInput<>(
                 document.getCredentialSubject(),

@@ -3,6 +3,7 @@ package com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model;
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
+import org.threeten.bp.Instant;
 
 import java.util.List;
 
@@ -15,9 +16,9 @@ public final class ProofAgePublicInput<T extends CredentialSubject> implements Z
     private final int ageThreshold;
     private final String holderPublicKey;
     private final String authorityPublicKey;
-    private final long vcDocumentDate;
+    private final Instant vcDocumentDate;
 
-    public ProofAgePublicInput(List<T> credentialSubject, ZeroKnowledgeSignature<T> zeroKnowledgeSignature, String challenge, String secretKey, int ageThreshold, String holderPublicKey, String authorityPublicKey, String documentId, long vcDocumentDate) {
+    public ProofAgePublicInput(List<T> credentialSubject, ZeroKnowledgeSignature<T> zeroKnowledgeSignature, String challenge, String secretKey, int ageThreshold, String holderPublicKey, String authorityPublicKey, String documentId, Instant vcDocumentDate) {
         this.credentialSubject = credentialSubject;
         this.zeroKnowledgeSignature = zeroKnowledgeSignature;
         this.challenge = challenge;
@@ -61,7 +62,7 @@ public final class ProofAgePublicInput<T extends CredentialSubject> implements Z
         return zeroKnowledgeSignature;
     }
 
-    public long getVcDocumentDate() {
+    public Instant getVcDocumentDate() {
         return vcDocumentDate;
     }
 

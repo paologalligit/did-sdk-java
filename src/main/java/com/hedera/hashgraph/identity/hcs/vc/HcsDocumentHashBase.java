@@ -90,4 +90,8 @@ public abstract class HcsDocumentHashBase {
   public void setIssuanceDate(Instant issuanceDate) {
     this.issuanceDate = issuanceDate;
   }
+
+  public String getId() {
+    return id;
+  }
 }

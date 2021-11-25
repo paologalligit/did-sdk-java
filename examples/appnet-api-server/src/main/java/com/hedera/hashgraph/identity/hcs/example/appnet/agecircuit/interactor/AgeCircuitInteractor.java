@@ -37,9 +37,9 @@ public class AgeCircuitInteractor implements CircuitInteractor {
                 publicInput.getDayLabel(), publicInput.getMonthLabel(), publicInput.getYearLabel(),
                 publicInput.getDayMerklePath(), publicInput.getMonthMerklePath(), publicInput.getYearMerklePath(),
                 publicInput.getMerkleTreeRoot(), publicInput.getSignedChallenge(), publicInput.getZkSignature(),
-                publicInput.getCurrentYear(), publicInput.getAgeThreshold(), publicInput.getHolderPublicKey(),
-                publicInput.getAuthorityPublicKey(), publicInput.getChallenge(), publicInput.getDocumentId(),
-                publicInput.getProvingKeyPath()
+                publicInput.getCurrentYear(), publicInput.getCurrentMonth(), publicInput.getCurrentDay(),
+                publicInput.getAgeThreshold(), publicInput.getHolderPublicKey(), publicInput.getAuthorityPublicKey(),
+                publicInput.getChallenge(), publicInput.getDocumentId(), publicInput.getProvingKeyPath()
         );
     }
 
@@ -54,9 +54,9 @@ public class AgeCircuitInteractor implements CircuitInteractor {
         generateDLogKeys(1 << 17, 1 << 15);
 
         return AgeCircuitProof.verifyProof(
-                publicInput.getProof(), publicInput.getCurrentDateTimestamp(), publicInput.getAgeThreshold(),
-                publicInput.getHolderPublicKey(), publicInput.getAuthorityPublicKey(), publicInput.getChallenge(),
-                publicInput.getDocumentId(), publicInput.getVerificationKeyPath()
+                publicInput.getProof(), publicInput.getCurrentYear(), publicInput.getCurrentMonth(), publicInput.getCurrentDay(),
+                publicInput.getAgeThreshold(), publicInput.getHolderPublicKey(), publicInput.getAuthorityPublicKey(),
+                publicInput.getChallenge(), publicInput.getDocumentId(), publicInput.getVerificationKeyPath()
         );
     }
 }

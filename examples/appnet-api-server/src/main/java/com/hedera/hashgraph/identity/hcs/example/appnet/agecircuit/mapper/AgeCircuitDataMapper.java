@@ -8,7 +8,6 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.zeroknowledge.circuit.mapper.CircuitDataMapper;
 import com.hedera.hashgraph.zeroknowledge.circuit.model.CircuitProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.circuit.model.CircuitVerifyPublicInput;
-import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeVerifyPublicInput;
 import com.hedera.hashgraph.zeroknowledge.exception.CircuitPublicInputMapperException;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
@@ -24,6 +23,9 @@ import io.horizen.common.schnorrnative.SchnorrKeyPair;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 import io.horizen.common.schnorrnative.SchnorrSecretKey;
 import io.horizen.common.schnorrnative.SchnorrSignature;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -80,8 +82,12 @@ public class AgeCircuitDataMapper implements CircuitDataMapper<ProofAgePublicInp
             );
             SchnorrSignature signedChallenge = keyPair.signMessage(challengeHashed);
 
-            FieldElement currentYear = FieldElement.createFromLong(proofAgePublicInput.getVcDocumentDate());
-            FieldElement ageThreshold = FieldElement.createFromLong(getAgeThresholdInMillis(proofAgePublicInput.getAgeThreshold()));
+            Instant documentDate = proofAgePublicInput.getVcDocumentDate();
+            LocalDateTime date = LocalDateTime.ofInstant(documentDate, ZoneId.systemDefault());
+            FieldElement currentYear = FieldElement.createFromLong(date.getYear());
+            FieldElement currentMonth = FieldElement.createFromLong(date.getMonthValue());
+            FieldElement currentDay = FieldElement.createFromLong(date.getDayOfMonth());
+            FieldElement ageThreshold = FieldElement.createFromLong(proofAgePublicInput.getAgeThreshold());
 
             String holderPublicKeyValue = proofAgePublicInput.getHolderPublicKey();
             String authorityPublicKeyValue = proofAgePublicInput.getAuthorityPublicKey();
@@ -96,7 +102,7 @@ public class AgeCircuitDataMapper implements CircuitDataMapper<ProofAgePublicInp
             return new AgeCircuitProofPublicInput(
                     dayValue, monthValue, yearValue, dayLabel, monthLabel, yearLabel,
                     dayMerklePath, monthMerklePath, yearMerklePath, merkleTreeRoot,
-                    signedChallenge, zkSignature, currentYear, ageThreshold,
+                    signedChallenge, zkSignature, currentYear, currentMonth, currentDay, ageThreshold,
                     holderPublicKey, authorityPublicKey, challenge, documentId, provingKeyPath
             );
         } catch (Exception e) {
@@ -122,16 +128,18 @@ public class AgeCircuitDataMapper implements CircuitDataMapper<ProofAgePublicInp
     @Override
     public CircuitVerifyPublicInput fromPublicInputVerifyToCircuitInputVerify(VerifyAgePublicInput publicInput) throws CircuitPublicInputMapperException {
         try {
-            FieldElement currentDateTimestamp = FieldElement.createFromLong(publicInput.getCurrentDateTimestamp());
-            FieldElement ageThreshold = FieldElement.createFromLong(getAgeThresholdInMillis(publicInput.getAgeThreshold()));
+            FieldElement currentYear = FieldElement.createFromLong(publicInput.getCurrentYear());
+            FieldElement currentMonth = FieldElement.createFromLong(publicInput.getCurrentMonth());
+            FieldElement currentDay = FieldElement.createFromLong(publicInput.getCurrentDay());
+            FieldElement ageThreshold = FieldElement.createFromLong(publicInput.getAgeThreshold());
             FieldElement challenge = FieldElement.deserialize(publicInput.getChallenge().getBytes(StandardCharsets.UTF_8));
             FieldElement documentId = FieldElement.deserialize(publicInput.getDocumentId().getBytes(StandardCharsets.UTF_8));
             SchnorrPublicKey holderPublicKey = SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(publicInput.getHolderPublicKey()));
             SchnorrPublicKey authorityPublicKey = SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(publicInput.getAuthorityPublicKey()));
 
             return new AgeCircuitVerifyPublicInput(
-                    publicInput.getProof(), currentDateTimestamp, ageThreshold,
-                    holderPublicKey, authorityPublicKey, challenge, documentId,
+                    publicInput.getProof(), currentYear, currentMonth, currentDay,
+                    ageThreshold, holderPublicKey, authorityPublicKey, challenge, documentId,
                     publicInput.getVerificationKeyPath()
             );
         } catch (DeserializationException e) {
