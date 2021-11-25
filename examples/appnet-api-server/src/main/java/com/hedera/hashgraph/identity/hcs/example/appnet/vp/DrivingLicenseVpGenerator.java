@@ -1,10 +1,9 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.vp;
 
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeProverProvider;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKnowledgeDocument;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeProofProvider;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
-import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.exception.VerifiablePresentationGenerationException;
 import com.hedera.hashgraph.zeroknowledge.exception.VpDocumentGeneratorException;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
@@ -16,14 +15,15 @@ import org.threeten.bp.Instant;
 import java.util.List;
 import java.util.Map;
 
-public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingLicenseZeroKnowledgeDocument, DriverAboveAgePresentation> {
+public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingLicenseZeroKnowledgeDocument, DriverAboveAgePresentation, ProofAgePublicInput<DrivingLicense>> {
 
-    public DrivingLicenseVpGenerator(ZkSnarkAgeProofProvider zeroKnowledgeProofProvider) {
+    public DrivingLicenseVpGenerator(ZkSnarkAgeProverProvider zeroKnowledgeProofProvider) {
         super(zeroKnowledgeProofProvider);
     }
 
     @Override
-    protected ZeroKnowledgeProofPublicInput getProofPublicInput(DrivingLicenseZeroKnowledgeDocument document, Map<String, Object> presentationMetadata) {
+    protected ProofAgePublicInput<DrivingLicense> getProofPublicInput(DrivingLicenseZeroKnowledgeDocument document, Map<String, Object> presentationMetadata) {
+        // TODO: can I get here the day labels?
         int ageThreshold = Integer.parseInt(presentationMetadata.get("ageThreshold").toString());
         // TODO: this is not the holder public key, we need to extract it
         String holderPublicKey = document.getCredentialSubject().get(0).getId();

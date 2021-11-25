@@ -1,4 +1,5 @@
 package com.hedera.hashgraph.zeroknowledge.circuit.model;
 
 public interface CircuitVerifyPublicInput {
+    void freeAll();
 }

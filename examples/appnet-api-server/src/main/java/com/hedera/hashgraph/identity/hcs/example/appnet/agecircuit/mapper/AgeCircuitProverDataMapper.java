@@ -3,18 +3,15 @@ package com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.AgeCircuitProofPublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.AgeCircuitVerifyPublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.VerifyAgePublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
-import com.hedera.hashgraph.zeroknowledge.circuit.mapper.CircuitDataMapper;
-import com.hedera.hashgraph.zeroknowledge.circuit.model.CircuitProofPublicInput;
-import com.hedera.hashgraph.zeroknowledge.circuit.model.CircuitVerifyPublicInput;
+import com.hedera.hashgraph.zeroknowledge.circuit.mapper.CircuitProverDataMapper;
 import com.hedera.hashgraph.zeroknowledge.exception.CircuitPublicInputMapperException;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.vc.CredentialSubjectMerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.vc.MerkleTreeLeaf;
 import io.github.cdimascio.dotenv.Dotenv;
-import io.horizen.common.librustsidechains.DeserializationException;
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.merkletreenative.BaseMerkleTree;
 import io.horizen.common.merkletreenative.FieldBasedMerklePath;
@@ -27,18 +24,19 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class AgeCircuitDataMapper implements CircuitDataMapper<ProofAgePublicInput<DrivingLicense>, VerifyAgePublicInput> {
+public class AgeCircuitProverDataMapper implements CircuitProverDataMapper<ProofAgePublicInput<DrivingLicense>, AgeCircuitProofPublicInput> {
     private final MerkleTreeFactory merkleTreeFactory;
 
-    public AgeCircuitDataMapper(MerkleTreeFactory merkleTreeFactory) {
+    public AgeCircuitProverDataMapper(MerkleTreeFactory merkleTreeFactory) {
         this.merkleTreeFactory = merkleTreeFactory;
     }
 
     @Override
-    public CircuitProofPublicInput fromPublicInputProofToCircuitInputProof(ProofAgePublicInput<DrivingLicense> proofAgePublicInput) throws CircuitPublicInputMapperException {
+    public AgeCircuitProofPublicInput fromPublicInputProofToCircuitInputProof(ProofAgePublicInput<DrivingLicense> proofAgePublicInput) throws CircuitPublicInputMapperException {
         Dotenv dotenv = Dotenv.configure().load();
 
         List<DrivingLicense> credentialSubjects = proofAgePublicInput.getCredentialSubject();
@@ -99,12 +97,16 @@ public class AgeCircuitDataMapper implements CircuitDataMapper<ProofAgePublicInp
 
             String provingKeyPath = dotenv.get("PROVING_KEY_PATH");
 
-            return new AgeCircuitProofPublicInput(
+            AgeCircuitProofPublicInput proofPublicInput = new AgeCircuitProofPublicInput(
                     dayValue, monthValue, yearValue, dayLabel, monthLabel, yearLabel,
                     dayMerklePath, monthMerklePath, yearMerklePath, merkleTreeRoot,
                     signedChallenge, zkSignature, currentYear, currentMonth, currentDay, ageThreshold,
                     holderPublicKey, authorityPublicKey, challenge, documentId, provingKeyPath
             );
+
+            manuallyDeallocateMemory(hashChallenge, challengeHashed, secretKey, keyPair);
+
+            return proofPublicInput;
         } catch (Exception e) {
             throw new CircuitPublicInputMapperException(
                     String.format("Cannot map public input to proof circuit input. Public input: %s", proofAgePublicInput),
@@ -113,40 +115,10 @@ public class AgeCircuitDataMapper implements CircuitDataMapper<ProofAgePublicInp
         }
     }
 
-    private long getAgeThresholdInMillis(int ageThreshold) {
-        long millisInSecond = 1000;
-        int secondsInMinute = 60;
-        int minutesInHour = 60;
-        int hoursInDay = 24;
-        int daysInYear = 365;
-
-        long millisInYear = millisInSecond * secondsInMinute * minutesInHour * hoursInDay * daysInYear;
-
-        return ageThreshold * millisInYear;
-    }
-
-    @Override
-    public CircuitVerifyPublicInput fromPublicInputVerifyToCircuitInputVerify(VerifyAgePublicInput publicInput) throws CircuitPublicInputMapperException {
-        try {
-            FieldElement currentYear = FieldElement.createFromLong(publicInput.getCurrentYear());
-            FieldElement currentMonth = FieldElement.createFromLong(publicInput.getCurrentMonth());
-            FieldElement currentDay = FieldElement.createFromLong(publicInput.getCurrentDay());
-            FieldElement ageThreshold = FieldElement.createFromLong(publicInput.getAgeThreshold());
-            FieldElement challenge = FieldElement.deserialize(publicInput.getChallenge().getBytes(StandardCharsets.UTF_8));
-            FieldElement documentId = FieldElement.deserialize(publicInput.getDocumentId().getBytes(StandardCharsets.UTF_8));
-            SchnorrPublicKey holderPublicKey = SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(publicInput.getHolderPublicKey()));
-            SchnorrPublicKey authorityPublicKey = SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(publicInput.getAuthorityPublicKey()));
-
-            return new AgeCircuitVerifyPublicInput(
-                    publicInput.getProof(), currentYear, currentMonth, currentDay,
-                    ageThreshold, holderPublicKey, authorityPublicKey, challenge, documentId,
-                    publicInput.getVerificationKeyPath()
-            );
-        } catch (DeserializationException e) {
-            throw new CircuitPublicInputMapperException(
-                    String.format("Cannot map public input to verify circuit input. Public input: %s", publicInput),
-                    e
-            );
-        }
+    private void manuallyDeallocateMemory(PoseidonHash hashChallenge, FieldElement challengeHashed, SchnorrSecretKey secretKey, SchnorrKeyPair keyPair) {
+        secretKey.close();
+        keyPair.close();
+        hashChallenge.close();
+        challengeHashed.close();
     }
 }

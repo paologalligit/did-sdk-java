@@ -143,4 +143,28 @@ public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput
     public String getProvingKeyPath() {
         return provingKeyPath;
     }
+
+    @Override
+    public void freeAll() {
+        dayValue.close();
+        monthValue.close();
+        yearValue.close();
+        dayLabel.close();
+        monthLabel.close();
+        yearLabel.close();
+        dayMerklePath.close();
+        monthMerklePath.close();
+        yearMerklePath.close();
+        merkleTreeRoot.close();
+        signedChallenge.close();
+        zkSignature.close();
+        currentYear.close();
+        currentMonth.close();
+        currentDay.close();
+        ageThreshold.close();
+        holderPublicKey.close();
+        authorityPublicKey.close();
+        challenge.close();
+        documentId.close();
+    }
 }

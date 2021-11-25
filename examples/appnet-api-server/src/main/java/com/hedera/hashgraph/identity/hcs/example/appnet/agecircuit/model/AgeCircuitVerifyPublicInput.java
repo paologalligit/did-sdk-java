@@ -68,4 +68,16 @@ public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInp
     public String getVerificationKeyPath() {
         return verificationKeyPath;
     }
+
+    @Override
+    public void freeAll() {
+        currentYear.close();
+        currentMonth.close();
+        currentDay.close();
+        ageThreshold.close();
+        holderPublicKey.close();
+        authorityPublicKey.close();
+        challenge.close();
+        documentId.close();
+    }
 }

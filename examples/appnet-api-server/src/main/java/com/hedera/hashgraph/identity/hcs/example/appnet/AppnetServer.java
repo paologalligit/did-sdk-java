@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
+
+import io.horizenlabs.agecircuit.AgeCircuitProof;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.server.RatpackServer;
@@ -80,12 +82,25 @@ public class AppnetServer {
       initHederaIdentityNetwork();
       initStorageAndTopicListeners();
       initHandlers();
+      initZeroKnowledgeFeature();
       startApiServer();
 
       log.info("Appnet API server is ready on port: " + SERVER_PORT);
     } catch (Exception e) {
       log.error("Error during startup: ", e);
     }
+  }
+
+  private void initZeroKnowledgeFeature() {
+    AgeCircuitProof.generateDLogKeys(1 << 17, 1 <<15);
+    Dotenv dotenv = Dotenv.configure().load();
+
+    String provingKeyPath = dotenv.get("PROVING_KEY_PATH");
+    String verificationKeyPath = dotenv.get("VERIFICATION_KEY_PATH");
+
+    log.info("Initializing proving and verification key path...");
+    new AgeCircuitProof().setup(provingKeyPath, verificationKeyPath);
+    log.info("Done creating proving and verification keys!");
   }
 
   /**

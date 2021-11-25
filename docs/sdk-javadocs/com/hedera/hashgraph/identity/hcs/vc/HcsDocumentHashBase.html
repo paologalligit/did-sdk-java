@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -226,26 +226,31 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setId(java.lang.String)">setId</a></span>&#8203;(java.lang.String&nbsp;id)</code></th>
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getId()">getId</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIssuanceDate(org.threeten.bp.Instant)">setIssuanceDate</a></span>&#8203;(org.threeten.bp.Instant&nbsp;issuanceDate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setId(java.lang.String)">setId</a></span>&#8203;(java.lang.String&nbsp;id)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIssuer(com.hedera.hashgraph.identity.hcs.vc.Issuer)">setIssuer</a></span>&#8203;(<a href="Issuer.html" title="class in com.hedera.hashgraph.identity.hcs.vc">Issuer</a>&nbsp;issuer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIssuanceDate(org.threeten.bp.Instant)">setIssuanceDate</a></span>&#8203;(org.threeten.bp.Instant&nbsp;issuanceDate)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setType(java.util.List)">setType</a></span>&#8203;(java.util.List&lt;java.lang.String&gt;&nbsp;type)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIssuer(com.hedera.hashgraph.identity.hcs.vc.Issuer)">setIssuer</a></span>&#8203;(<a href="Issuer.html" title="class in com.hedera.hashgraph.identity.hcs.vc">Issuer</a>&nbsp;issuer)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setType(java.util.List)">setType</a></span>&#8203;(java.util.List&lt;java.lang.String&gt;&nbsp;type)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toCredentialHash()">toCredentialHash</a></span>()</code></th>
 <td class="colLast">
@@ -414,10 +419,19 @@ protected&nbsp;org.threeten.bp.Instant issuanceDate</pre>
 <a id="setIssuanceDate(org.threeten.bp.Instant)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>setIssuanceDate</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setIssuanceDate&#8203;(org.threeten.bp.Instant&nbsp;issuanceDate)</pre>
+</li>
+</ul>
+<a id="getId()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getId</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getId()</pre>
 </li>
 </ul>
 </li>

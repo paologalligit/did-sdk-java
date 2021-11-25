@@ -2,24 +2,23 @@ package com.hedera.hashgraph.zeroknowledge.vp;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
-import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProofProvider;
+import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProverProvider;
 import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeProofPublicInput;
 import com.hedera.hashgraph.zeroknowledge.exception.VpDocumentGeneratorException;
 import com.hedera.hashgraph.zeroknowledge.exception.ZeroKnowledgeProofProviderException;
 
 import java.util.Map;
 
-// TODO: should we add another couple of X extends Y to the vpGenerator?
-public abstract class VpZeroKnowledgeGenerator<T extends HcsVcDocumentBase<? extends CredentialSubject>, U extends HcsVpDocumentBase<? extends VerifiableCredential>>
+public abstract class VpZeroKnowledgeGenerator<T extends HcsVcDocumentBase<? extends CredentialSubject>, U extends HcsVpDocumentBase<? extends VerifiableCredential>, P extends ZeroKnowledgeProofPublicInput>
         implements VpGenerator<T, U> {
-    private final ZeroKnowledgeProofProvider zeroKnowledgeProofProvider;
+    private final ZeroKnowledgeProverProvider<P> zeroKnowledgeProofProvider;
 
-    public VpZeroKnowledgeGenerator(ZeroKnowledgeProofProvider zeroKnowledgeProofProvider) {
+    public VpZeroKnowledgeGenerator(ZeroKnowledgeProverProvider<P> zeroKnowledgeProofProvider) {
         this.zeroKnowledgeProofProvider = zeroKnowledgeProofProvider;
     }
 
     protected byte[] generateSnarkProof(T document, Map<String, Object> presentationMetadata) throws VpDocumentGeneratorException {
-        ZeroKnowledgeProofPublicInput publicInput = getProofPublicInput(document, presentationMetadata);
+        P publicInput = getProofPublicInput(document, presentationMetadata);
         try {
             return zeroKnowledgeProofProvider.createProof(publicInput);
         } catch (ZeroKnowledgeProofProviderException e) {
@@ -30,5 +29,5 @@ public abstract class VpZeroKnowledgeGenerator<T extends HcsVcDocumentBase<? ext
         }
     }
 
-    protected abstract ZeroKnowledgeProofPublicInput getProofPublicInput(T document, Map<String, Object> presentationMetadata);
+    protected abstract P getProofPublicInput(T document, Map<String, Object> presentationMetadata);
 }

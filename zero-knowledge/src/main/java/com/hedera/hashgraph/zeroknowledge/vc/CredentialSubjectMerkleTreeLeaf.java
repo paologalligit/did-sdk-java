@@ -18,25 +18,17 @@ public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible 
 
     @Override
     public FieldElement toFieldElement() throws FieldElementConversionException {
-        FieldElement keyField, valueFields;
-        PoseidonHash hash;
-
         try {
-            keyField = FieldElement.deserialize(propertyLabel.getBytes(StandardCharsets.UTF_8));
-//            valueFields = getFieldElementByAllowedTypes(propertyValue);
-            if (propertyValue instanceof Integer) {
-                valueFields = FieldElement.createFromLong((int) propertyValue);
-            } else if (propertyValue instanceof Long) {
-                valueFields = FieldElement.createFromLong((long) propertyValue);
-            } else {
-                valueFields = FieldElement.deserialize(propertyValue.toString().getBytes(StandardCharsets.UTF_8));
+            try(
+                    PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
+                    FieldElement keyField = FieldElement.deserialize(propertyLabel.getBytes(StandardCharsets.UTF_8));
+                    FieldElement valueFields = getFieldElementByAllowedTypes(propertyValue)
+            ) {
+                hash.update(keyField);
+                hash.update(valueFields);
+
+                return hash.finalizeHash();
             }
-
-            hash = PoseidonHash.getInstanceConstantLength(2);
-            hash.update(keyField);
-            hash.update(valueFields);
-
-            return hash.finalizeHash();
         } catch (DeserializationException | IllegalArgumentException e) {
             throw new FieldElementConversionException(
                     String.format("Cannot deserialize label or value to field element. Label: '%s', value: '%s'", propertyLabel, propertyValue),
@@ -44,18 +36,6 @@ public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible 
             );
         } catch (FinalizationException e) {
             throw new FieldElementConversionException("Cannot finalize merkle leaf hash");
-        } finally {
-//            closeAll(keyField, valueFields, hash);
-        }
-    }
-
-    private void closeAll(AutoCloseable ...autoCloseable) {
-        for (AutoCloseable closeable : autoCloseable) {
-            try {
-                closeable.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

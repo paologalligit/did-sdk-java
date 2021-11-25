@@ -9,8 +9,13 @@ import com.hedera.hashgraph.identity.hcs.MessageEnvelope;
 import com.hedera.hashgraph.identity.hcs.did.HcsDid;
 import com.hedera.hashgraph.identity.hcs.did.HcsDidMessage;
 import com.hedera.hashgraph.identity.hcs.example.appnet.AppnetStorage;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.interactor.AgeCircuitProverInteractor;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.interactor.AgeCircuitVerifierInteractor;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper.AgeCircuitProverDataMapper;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper.AgeCircuitVerifierDataMapper;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.VerifyAgePublicInput;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeProverProvider;
+import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeVerifierProvider;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
 import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DriverAboveAgeVpPresenter;
@@ -19,26 +24,17 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgeVerifiableCredential;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DrivingLicenseVpGenerator;
-import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
-import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProofProvider;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper.AgeCircuitDataMapper;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.interactor.AgeCircuitInteractor;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeProofProvider;
-import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeSnarkProofProviderBase;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
 import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
-import com.squareup.okhttp.Response;
-import io.github.cdimascio.dotenv.Dotenv;
 import io.horizen.common.schnorrnative.SchnorrKeyPair;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 import io.horizen.common.schnorrnative.SchnorrSecretKey;
-import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -61,6 +57,7 @@ public class DemoHandler extends AppnetHandler {
   public static final String HEADER_PRIVATE_KEY = "privateKey";
   public static final String HEADER_SCHNORR_SECRET_KEY = "schnorrSecretKey";
   private static final Logger log = LoggerFactory.getLogger(DemoHandler.class);
+  public static final String SCHNORR_PUBLIC_KEY = "schnorrPublicKey";
 
   /**
    * Instantiates the handler.
@@ -276,9 +273,9 @@ public class DemoHandler extends AppnetHandler {
 
       DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
       DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator(
-              new ZkSnarkAgeProofProvider(
-                      new AgeCircuitInteractor(),
-                      new AgeCircuitDataMapper(new MerkleTreeFactoryImpl())
+              new ZkSnarkAgeProverProvider(
+                      new AgeCircuitProverInteractor(),
+                      new AgeCircuitProverDataMapper(new MerkleTreeFactoryImpl())
               )
       );
       String secretKey = ByteUtils.bytesToHex(getSchnorrSecretKeyFromHeader(ctx).serializeSecretKey());
@@ -404,15 +401,15 @@ public class DemoHandler extends AppnetHandler {
         String verificationKeyPath = req.get("verificationKeyPath").getAsString();
 
         DriverAboveAgeVerifiableCredential drivingLicense = dld.getVerifiableCredential().get(0);
-        ZkSnarkAgeProofProvider zkProofProvider = new ZkSnarkAgeProofProvider(
-                new AgeCircuitInteractor(),
-                new AgeCircuitDataMapper(new MerkleTreeFactoryImpl())
+        ZkSnarkAgeVerifierProvider zkProofProvider = new ZkSnarkAgeVerifierProvider(
+                new AgeCircuitVerifierInteractor(),
+                new AgeCircuitVerifierDataMapper()
         );
         PresentationProof presentationProof = drivingLicense.getProof();
         String proof = presentationProof.getProof();
 
         VerifyAgePublicInput verifyAgePublicInput = new VerifyAgePublicInput(
-          ByteUtils.hexStringToByteArray(proof), 2021, 11, 24, 18,
+          ByteUtils.hexStringToByteArray(proof), 2021, 11, 25, 18,
                 dld.getHolder(), drivingLicense.getIssuer().getId(), challenge, drivingLicense.getId(), verificationKeyPath
         );
 
@@ -436,7 +433,7 @@ public class DemoHandler extends AppnetHandler {
       SchnorrSecretKey secretKey = keyPair.getSecretKey();
 
       ctx.header(HEADER_SCHNORR_SECRET_KEY, ByteUtils.bytesToHex(secretKey.serializeSecretKey()));
-      ctx.header("schnorrPublicKey", ByteUtils.bytesToHex(publicKey.serializePublicKey()));
+      ctx.header(SCHNORR_PUBLIC_KEY, ByteUtils.bytesToHex(publicKey.serializePublicKey()));
 
       ctx.getResponse().status(Status.OK);
       ctx.render("OK");

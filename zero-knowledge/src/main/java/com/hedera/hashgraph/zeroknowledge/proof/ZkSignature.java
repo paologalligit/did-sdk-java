@@ -2,6 +2,7 @@ package com.hedera.hashgraph.zeroknowledge.proof;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
+import com.hedera.hashgraph.zeroknowledge.exception.ZkSignatureException;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.utils.MerkleTreeUtils;
@@ -34,28 +35,40 @@ public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSi
     }
 
     @Override
-    public void sign(byte[] privateKey, HcsVcDocumentBase<T> vcDocument) throws InvocationTargetException, IllegalAccessException, FieldElementConversionException, MerkleTreeException, InitializationException, FinalizationException, DeserializationException, SchnorrSignatureException {
-        FieldElement documentId = FieldElement.deserialize(vcDocument.getId().getBytes(StandardCharsets.UTF_8));
-        BaseMerkleTree merkleTree = merkleTreeFactory.getMerkleTree(vcDocument.getCredentialSubject());
+    public void sign(byte[] privateKey, HcsVcDocumentBase<T> vcDocument) throws ZkSignatureException {
+        FieldElement merkleTreeRoot = null, hash = null;
+        SchnorrSignature schnorrSignature = null;
+        try (
+                FieldElement documentId = FieldElement.deserialize(vcDocument.getId().getBytes(StandardCharsets.UTF_8));
+                BaseMerkleTree merkleTree = merkleTreeFactory.getMerkleTree(vcDocument.getCredentialSubject());
+                SchnorrSecretKey secretKey = SchnorrSecretKey.deserialize(privateKey);
+                SchnorrPublicKey publicKey = secretKey.getPublicKey();
+                SchnorrKeyPair keyPair = new SchnorrKeyPair(
+                        secretKey,
+                        publicKey
+                )
+        ) {
+            merkleTree.finalizeTreeInPlace();
+            merkleTreeRoot = merkleTree.root();
 
-        merkleTree.finalizeTreeInPlace();
-        FieldElement merkleTreeRoot = merkleTree.root();
+            hash = computeHash(documentId, merkleTreeRoot);
+            schnorrSignature = keyPair.signMessage(hash);
 
-        FieldElement hash = computeHash(documentId, merkleTreeRoot);
-
-        SchnorrSecretKey secretKey = SchnorrSecretKey.deserialize(privateKey);
-        SchnorrPublicKey publicKey = secretKey.getPublicKey();
-
-        SchnorrKeyPair keyPair = new SchnorrKeyPair(
-                secretKey,
-                publicKey
-        );
-
-        SchnorrSignature schnorrSignature = keyPair.signMessage(hash);
-        this.signature = ByteUtils.bytesToHex(schnorrSignature.serializeSignature());
+            this.signature = ByteUtils.bytesToHex(schnorrSignature.serializeSignature());
+        } catch (Exception e) {
+            throw new ZkSignatureException("Cannot sign document", e);
+        } finally {
+            closeAll(merkleTreeRoot, hash, schnorrSignature);
+        }
     }
 
-    private FieldElement computeHash(FieldElement documentId, FieldElement merkleTreeRoot) throws DeserializationException, FinalizationException {
+    private void closeAll(FieldElement merkleTreeRoot, FieldElement hash, SchnorrSignature schnorrSignature) {
+        if (merkleTreeRoot != null) merkleTreeRoot.close();
+        if (hash != null) hash.close();
+        if (schnorrSignature != null) schnorrSignature.close();
+    }
+
+    private FieldElement computeHash(FieldElement documentId, FieldElement merkleTreeRoot) throws FinalizationException {
         return MerkleTreeUtils.computeHash(documentId, merkleTreeRoot);
     }
 }
