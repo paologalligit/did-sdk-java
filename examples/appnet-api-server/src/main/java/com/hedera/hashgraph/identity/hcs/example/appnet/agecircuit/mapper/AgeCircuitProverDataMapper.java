@@ -1,7 +1,6 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper;
 
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.AgeCircuitProofPublicInput;
-import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.AgeCircuitVerifyPublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.zeroknowledge.circuit.mapper.CircuitProverDataMapper;
@@ -10,7 +9,6 @@ import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.vc.CredentialSubjectMerkleTreeLeaf;
-import com.hedera.hashgraph.zeroknowledge.vc.MerkleTreeLeaf;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.merkletreenative.BaseMerkleTree;
@@ -24,7 +22,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -44,13 +41,17 @@ public class AgeCircuitProverDataMapper implements CircuitProverDataMapper<Proof
         ZeroKnowledgeSignature<DrivingLicense> zeroKnowledgeSignature = proofAgePublicInput.getZeroKnowledgeSignature();
 
         try {
-            CredentialSubjectMerkleTreeLeaf dayLeaf = new CredentialSubjectMerkleTreeLeaf("day", credentialSubject.getBirthDateDay());
-            CredentialSubjectMerkleTreeLeaf monthLeaf = new CredentialSubjectMerkleTreeLeaf("month", credentialSubject.getBirthDateMonth());
-            CredentialSubjectMerkleTreeLeaf yearLeaf = new CredentialSubjectMerkleTreeLeaf("year", credentialSubject.getBirthDateYear());
+            String dayLabelString = proofAgePublicInput.getDayLabel();
+            String monthLabelString = proofAgePublicInput.getMonthLabel();
+            String yearLabelString = proofAgePublicInput.getYearLabel();
 
-            FieldElement dayLabel = FieldElement.deserialize("day".getBytes(StandardCharsets.UTF_8));
-            FieldElement monthLabel = FieldElement.deserialize("month".getBytes(StandardCharsets.UTF_8));
-            FieldElement yearLabel = FieldElement.deserialize("year".getBytes(StandardCharsets.UTF_8));
+            CredentialSubjectMerkleTreeLeaf dayLeaf = new CredentialSubjectMerkleTreeLeaf(dayLabelString, credentialSubject.getBirthDateDay());
+            CredentialSubjectMerkleTreeLeaf monthLeaf = new CredentialSubjectMerkleTreeLeaf(monthLabelString, credentialSubject.getBirthDateMonth());
+            CredentialSubjectMerkleTreeLeaf yearLeaf = new CredentialSubjectMerkleTreeLeaf(yearLabelString, credentialSubject.getBirthDateYear());
+
+            FieldElement dayLabel = FieldElement.deserialize(dayLabelString.getBytes(StandardCharsets.UTF_8));
+            FieldElement monthLabel = FieldElement.deserialize(monthLabelString.getBytes(StandardCharsets.UTF_8));
+            FieldElement yearLabel = FieldElement.deserialize(yearLabelString.getBytes(StandardCharsets.UTF_8));
 
             FieldElement dayValue = FieldElement.createFromLong(credentialSubject.getBirthDateDay());
             FieldElement monthValue = FieldElement.createFromLong(credentialSubject.getBirthDateMonth());

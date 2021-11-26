@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.presenter;
+package com.hedera.hashgraph.zeroknowledge.marshaller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -14,7 +14,7 @@ import java.util.List;
 
 import static com.hedera.hashgraph.identity.utils.JsonUtils.getJsonElementAsList;
 
-public abstract class ZeroKnowledgeVpPresenter<T extends HcsVpDocumentBase<? extends VerifiableCredentialBase>> implements VpPresenter<T> {
+public abstract class ZeroKnowledgeVpMarshaller<T extends HcsVpDocumentBase<? extends VerifiableCredentialBase>> implements VpMarshaller<T> {
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "issuanceDate", "holder"};
     protected static final Gson gson = JsonUtils.getGson();
 

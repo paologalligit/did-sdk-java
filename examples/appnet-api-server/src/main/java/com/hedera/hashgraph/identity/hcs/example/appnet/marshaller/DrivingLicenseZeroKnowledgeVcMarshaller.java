@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.example.appnet.presenter;
+package com.hedera.hashgraph.identity.hcs.example.appnet.marshaller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -8,7 +8,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKnowledgeDocument;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
-import com.hedera.hashgraph.identity.hcs.presenter.HcsVcDocumentVcPresenter;
+import com.hedera.hashgraph.identity.hcs.vc.marshaller.HcsVcDocumentMarshaller;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
 import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
@@ -22,7 +22,7 @@ import java.util.List;
 import static com.hedera.hashgraph.identity.hcs.example.appnet.dto.BirthDate.getJsonElementAsBirthDate;
 import static com.hedera.hashgraph.identity.utils.JsonUtils.getJsonElementAsList;
 
-public class DrivingLicenseZeroKnowledgeVcPresenter extends HcsVcDocumentVcPresenter<DrivingLicenseZeroKnowledgeDocument> {
+public class DrivingLicenseZeroKnowledgeVcMarshaller extends HcsVcDocumentMarshaller<DrivingLicenseZeroKnowledgeDocument> {
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "credentialSchema",
             "credentialSubject", "issuer", "issuanceDate", "proof"};
 

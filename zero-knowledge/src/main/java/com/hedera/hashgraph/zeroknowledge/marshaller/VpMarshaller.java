@@ -1,9 +1,9 @@
-package com.hedera.hashgraph.zeroknowledge.presenter;
+package com.hedera.hashgraph.zeroknowledge.marshaller;
 
 import com.hedera.hashgraph.zeroknowledge.vp.HcsVpDocumentBase;
 import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredentialBase;
 
-public interface VpPresenter<T extends HcsVpDocumentBase<? extends VerifiableCredentialBase>> {
+public interface VpMarshaller<T extends HcsVpDocumentBase<? extends VerifiableCredentialBase>> {
     String fromDocumentToString(T vpDocument);
 
     T fromStringToDocument(String stringDocument);

@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.presenter;
+package com.hedera.hashgraph.identity.hcs.vc.marshaller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -15,7 +15,7 @@ import java.util.List;
 
 import static com.hedera.hashgraph.identity.utils.JsonUtils.getJsonElementAsList;
 
-public abstract class HcsVcDocumentVcPresenter<T extends HcsVcDocumentBase<? extends CredentialSubject>> implements VcPresenter<T> {
+public abstract class HcsVcDocumentMarshaller<T extends HcsVcDocumentBase<? extends CredentialSubject>> implements VcMarshaller<T> {
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type",
             "credentialSubject", "issuer", "issuanceDate", "proof"};
     protected static final Gson gson = JsonUtils.getGson();

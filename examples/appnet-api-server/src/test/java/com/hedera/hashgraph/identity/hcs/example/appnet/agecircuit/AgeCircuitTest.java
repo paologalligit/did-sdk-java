@@ -8,7 +8,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.VerifyA
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeProverProvider;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeVerifierProvider;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.BirthDate;
-import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DrivingLicenseZeroKnowledgeVcPresenter;
+import com.hedera.hashgraph.identity.hcs.example.appnet.marshaller.DrivingLicenseZeroKnowledgeVcMarshaller;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgeVerifiableCredential;
@@ -64,7 +64,7 @@ class AgeCircuitTest {
         SchnorrPublicKey authorityPublicKey = authorityKeyPair.getPublicKey();
         SchnorrSecretKey authoritySecretKey = authorityKeyPair.getSecretKey();
 
-        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
+        DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
 
         // the vc document
         DrivingLicenseZeroKnowledgeDocument licenseDocument = new DrivingLicenseZeroKnowledgeDocument();
@@ -97,6 +97,9 @@ class AgeCircuitTest {
         presentationMetadata.put("ageThreshold", 18);
         presentationMetadata.put("challenge", "fake-challenge");
         presentationMetadata.put("secretKey", holderSecretKeyHex);
+        presentationMetadata.put("dayLabel", "day");
+        presentationMetadata.put("monthLabel", "month");
+        presentationMetadata.put("yearLabel", "year");
 
         DrivingLicenseVpGenerator generator = new DrivingLicenseVpGenerator(ageProverProvider);
         AgeCircuitProof.generateDLogKeys(1 <<17, 1 <<15);

@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.identity.hcs.example.appnet.presenter;
+package com.hedera.hashgraph.identity.hcs.example.appnet.marshaller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -10,7 +10,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgeVerifia
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
-import com.hedera.hashgraph.zeroknowledge.presenter.ZeroKnowledgeVpPresenter;
+import com.hedera.hashgraph.zeroknowledge.marshaller.ZeroKnowledgeVpMarshaller;
 import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
 import com.hedera.hashgraph.zeroknowledge.vp.HcsVpDocumentJsonProperties;
@@ -22,7 +22,7 @@ import java.util.List;
 
 import static com.hedera.hashgraph.identity.utils.JsonUtils.getJsonElementAsList;
 
-public class DriverAboveAgeVpPresenter extends ZeroKnowledgeVpPresenter<DriverAboveAgePresentation> {
+public class DriverAboveAgeVpMarshaller extends ZeroKnowledgeVpMarshaller<DriverAboveAgePresentation> {
     protected static final Gson gson = JsonUtils.getGson();
 
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "issuanceDate",

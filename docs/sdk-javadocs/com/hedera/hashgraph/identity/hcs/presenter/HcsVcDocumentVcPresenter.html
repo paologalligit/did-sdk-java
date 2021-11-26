@@ -114,7 +114,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.hedera.hashgraph.identity.hcs.presenter</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.hedera.hashgraph.identity.hcs.vc.marshaller</a></div>
 <h2 title="Class HcsVcDocumentVcPresenter" class="title">Class HcsVcDocumentVcPresenter&lt;T extends <a href="../vc/HcsVcDocumentBase.html" title="class in com.hedera.hashgraph.identity.hcs.vc">HcsVcDocumentBase</a>&lt;? extends <a href="../vc/CredentialSubject.html" title="class in com.hedera.hashgraph.identity.hcs.vc">CredentialSubject</a>&gt;&gt;</h2>
 </div>
 <div class="contentContainer">
@@ -122,7 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.hedera.hashgraph.identity.hcs.presenter.HcsVcDocumentVcPresenter&lt;T&gt;</li>
+<li>com.hedera.hashgraph.identity.hcs.vc.marshaller.HcsVcDocumentMarshaller&lt;T&gt;</li>
 </ul>
 </li>
 </ul>
@@ -131,12 +131,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.presenter">VcPresenter</a>&lt;T&gt;</code></dd>
+<dd><code><a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.vc.marshaller">VcPresenter</a>&lt;T&gt;</code></dd>
 </dl>
 <hr>
 <pre>public abstract class <span class="typeNameLabel">HcsVcDocumentVcPresenter&lt;T extends <a href="../vc/HcsVcDocumentBase.html" title="class in com.hedera.hashgraph.identity.hcs.vc">HcsVcDocumentBase</a>&lt;? extends <a href="../vc/CredentialSubject.html" title="class in com.hedera.hashgraph.identity.hcs.vc">CredentialSubject</a>&gt;&gt;</span>
 extends java.lang.Object
-implements <a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.presenter">VcPresenter</a>&lt;T&gt;</pre>
+implements <a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.vc.marshaller">VcPresenter</a>&lt;T&gt;</pre>
 </li>
 </ul>
 </div>
@@ -294,7 +294,7 @@ implements <a href="VcPresenter.html" title="interface in com.hedera.hashgraph.i
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;fromDocumentToString&#8203;(<a href="HcsVcDocumentVcPresenter.html" title="type parameter in HcsVcDocumentVcPresenter">T</a>&nbsp;vcDocument)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="VcPresenter.html#fromDocumentToString(T)">fromDocumentToString</a></code>&nbsp;in interface&nbsp;<code><a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.presenter">VcPresenter</a>&lt;<a href="HcsVcDocumentVcPresenter.html" title="type parameter in HcsVcDocumentVcPresenter">T</a> extends <a href="../vc/HcsVcDocumentBase.html" title="class in com.hedera.hashgraph.identity.hcs.vc">HcsVcDocumentBase</a>&lt;? extends <a href="../vc/CredentialSubject.html" title="class in com.hedera.hashgraph.identity.hcs.vc">CredentialSubject</a>&gt;&gt;</code></dd>
+<dd><code><a href="VcPresenter.html#fromDocumentToString(T)">fromDocumentToString</a></code>&nbsp;in interface&nbsp;<code><a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.vc.marshaller">VcPresenter</a>&lt;<a href="HcsVcDocumentVcPresenter.html" title="type parameter in HcsVcDocumentVcPresenter">T</a> extends <a href="../vc/HcsVcDocumentBase.html" title="class in com.hedera.hashgraph.identity.hcs.vc">HcsVcDocumentBase</a>&lt;? extends <a href="../vc/CredentialSubject.html" title="class in com.hedera.hashgraph.identity.hcs.vc">CredentialSubject</a>&gt;&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -307,7 +307,7 @@ implements <a href="VcPresenter.html" title="interface in com.hedera.hashgraph.i
 <pre class="methodSignature">public&nbsp;<a href="HcsVcDocumentVcPresenter.html" title="type parameter in HcsVcDocumentVcPresenter">T</a>&nbsp;fromStringToDocument&#8203;(java.lang.String&nbsp;stringDocument)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="VcPresenter.html#fromStringToDocument(java.lang.String)">fromStringToDocument</a></code>&nbsp;in interface&nbsp;<code><a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.presenter">VcPresenter</a>&lt;<a href="HcsVcDocumentVcPresenter.html" title="type parameter in HcsVcDocumentVcPresenter">T</a> extends <a href="../vc/HcsVcDocumentBase.html" title="class in com.hedera.hashgraph.identity.hcs.vc">HcsVcDocumentBase</a>&lt;? extends <a href="../vc/CredentialSubject.html" title="class in com.hedera.hashgraph.identity.hcs.vc">CredentialSubject</a>&gt;&gt;</code></dd>
+<dd><code><a href="VcPresenter.html#fromStringToDocument(java.lang.String)">fromStringToDocument</a></code>&nbsp;in interface&nbsp;<code><a href="VcPresenter.html" title="interface in com.hedera.hashgraph.identity.hcs.vc.marshaller">VcPresenter</a>&lt;<a href="HcsVcDocumentVcPresenter.html" title="type parameter in HcsVcDocumentVcPresenter">T</a> extends <a href="../vc/HcsVcDocumentBase.html" title="class in com.hedera.hashgraph.identity.hcs.vc">HcsVcDocumentBase</a>&lt;? extends <a href="../vc/CredentialSubject.html" title="class in com.hedera.hashgraph.identity.hcs.vc">CredentialSubject</a>&gt;&gt;</code></dd>
 </dl>
 </li>
 </ul>

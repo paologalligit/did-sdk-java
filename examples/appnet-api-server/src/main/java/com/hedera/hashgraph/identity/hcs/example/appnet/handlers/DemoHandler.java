@@ -18,8 +18,8 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSn
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.provider.ZkSnarkAgeVerifierProvider;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.DrivingLicenseRequest;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.ErrorResponse;
-import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DriverAboveAgeVpPresenter;
-import com.hedera.hashgraph.identity.hcs.example.appnet.presenter.DrivingLicenseZeroKnowledgeVcPresenter;
+import com.hedera.hashgraph.identity.hcs.example.appnet.marshaller.DriverAboveAgeVpMarshaller;
+import com.hedera.hashgraph.identity.hcs.example.appnet.marshaller.DrivingLicenseZeroKnowledgeVcMarshaller;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.*;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgePresentation;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vp.DriverAboveAgeVerifiableCredential;
@@ -38,6 +38,8 @@ import io.horizen.common.schnorrnative.SchnorrSecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 import ratpack.handling.Context;
 import ratpack.http.Status;
 import ratpack.jackson.Jackson;
@@ -219,7 +221,7 @@ public class DemoHandler extends AppnetHandler {
 
       try {
         DrivingLicenseZeroKnowledgeDocument vc = new DrivingLicenseZeroKnowledgeDocument();
-        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
+        DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
 
         vc.setIssuer(req.getIssuer());
         vc.setIssuanceDate(Instant.now());
@@ -263,7 +265,7 @@ public class DemoHandler extends AppnetHandler {
 
       try {
         req = JsonUtils.getGson().fromJson(data.getText(), JsonObject.class);
-        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
+        DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
         doc = presenter.fromStringToDocument(JsonUtils.getGson().toJson(req.get("verifiableCredential")));
       } catch (Exception e) {
         ctx.getResponse().status(Status.BAD_REQUEST);
@@ -271,7 +273,7 @@ public class DemoHandler extends AppnetHandler {
         return;
       }
 
-      DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
+      DriverAboveAgeVpMarshaller presenter = new DriverAboveAgeVpMarshaller();
       DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator(
               new ZkSnarkAgeProverProvider(
                       new AgeCircuitProverInteractor(),
@@ -283,11 +285,15 @@ public class DemoHandler extends AppnetHandler {
       metadataMap.put("challenge", req.get("challenge").getAsString());
       metadataMap.put("ageThreshold", req.get("ageThreshold").getAsString());
       metadataMap.put("secretKey", secretKey);
+      metadataMap.put("dayLabel", req.get("dayLabel").getAsString());
+      metadataMap.put("monthLabel", req.get("monthLabel").getAsString());
+      metadataMap.put("yearLabel", req.get("yearLabel").getAsString());
 
       DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(
               Collections.singletonList(doc),
               metadataMap
       );
+
       ctx.render(presenter.fromDocumentToString(presentation));
     });
   }
@@ -356,7 +362,7 @@ public class DemoHandler extends AppnetHandler {
   public void determineZkCredentialHash(Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        DrivingLicenseZeroKnowledgeVcPresenter presenter = new DrivingLicenseZeroKnowledgeVcPresenter();
+        DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
         DrivingLicenseZeroKnowledgeDocument document = presenter.fromStringToDocument(data.getText());
         String hash = document.toCredentialHash();
         ctx.render(hash);
@@ -370,7 +376,7 @@ public class DemoHandler extends AppnetHandler {
   public void determinePresentationCredentialHash(Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       try {
-        DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
+        DriverAboveAgeVpMarshaller presenter = new DriverAboveAgeVpMarshaller();
         DriverAboveAgePresentation dld = presenter.fromStringToDocument(data.getText());
         String hash = dld.getCredentialHashForVerifiableCredentialByIndex(0);
 
@@ -390,7 +396,7 @@ public class DemoHandler extends AppnetHandler {
 
         try {
           req = JsonUtils.getGson().fromJson(data.getText(), JsonObject.class);
-          DriverAboveAgeVpPresenter presenter = new DriverAboveAgeVpPresenter();
+          DriverAboveAgeVpMarshaller presenter = new DriverAboveAgeVpMarshaller();
           dld = presenter.fromStringToDocument(JsonUtils.getGson().toJson(req.get("presentation")));
         } catch (Exception e) {
           ctx.getResponse().status(Status.BAD_REQUEST);
@@ -399,6 +405,8 @@ public class DemoHandler extends AppnetHandler {
         }
         String challenge = req.get("challenge").getAsString();
         String verificationKeyPath = req.get("verificationKeyPath").getAsString();
+        String ageThresholdString = req.get("ageThreshold").getAsString();
+        int ageThreshold = Integer.parseInt(ageThresholdString);
 
         DriverAboveAgeVerifiableCredential drivingLicense = dld.getVerifiableCredential().get(0);
         ZkSnarkAgeVerifierProvider zkProofProvider = new ZkSnarkAgeVerifierProvider(
@@ -408,8 +416,10 @@ public class DemoHandler extends AppnetHandler {
         PresentationProof presentationProof = drivingLicense.getProof();
         String proof = presentationProof.getProof();
 
+        LocalDateTime date = LocalDateTime.ofInstant(drivingLicense.getIssuanceDate(), ZoneId.systemDefault());
+
         VerifyAgePublicInput verifyAgePublicInput = new VerifyAgePublicInput(
-          ByteUtils.hexStringToByteArray(proof), 2021, 11, 25, 18,
+          ByteUtils.hexStringToByteArray(proof), date.getYear(), date.getMonthValue(), date.getDayOfMonth(), ageThreshold,
                 dld.getHolder(), drivingLicense.getIssuer().getId(), challenge, drivingLicense.getId(), verificationKeyPath
         );
 
@@ -436,7 +446,7 @@ public class DemoHandler extends AppnetHandler {
       ctx.header(SCHNORR_PUBLIC_KEY, ByteUtils.bytesToHex(publicKey.serializePublicKey()));
 
       ctx.getResponse().status(Status.OK);
-      ctx.render("OK");
+      ctx.render("Schnorr key pair generated");
     });
   }
 }
