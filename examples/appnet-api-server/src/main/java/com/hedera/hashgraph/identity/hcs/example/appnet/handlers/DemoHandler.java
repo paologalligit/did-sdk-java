@@ -32,6 +32,7 @@ import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryIm
 import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
+import io.github.cdimascio.dotenv.Dotenv;
 import io.horizen.common.schnorrnative.SchnorrKeyPair;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 import io.horizen.common.schnorrnative.SchnorrSecretKey;
@@ -78,6 +79,22 @@ public class DemoHandler extends AppnetHandler {
    * @param ctx The HTTP context.
    */
   public void generateDid(final Context ctx) {
+    PrivateKey privateKey = HcsDid.generateDidRootKey();
+    HcsDid did = new HcsDid(identityNetwork.getNetwork(), privateKey.getPublicKey(),
+            identityNetwork.getAddressBook().getFileId());
+    DidDocumentBase doc = did.generateDidDocument();
+
+    ctx.header(HEADER_PRIVATE_KEY, privateKey.toString());
+    ctx.render(doc.toJson());
+  }
+
+  /**
+   * Generates a new DID document and writes it to the response body.
+   * Private key is returned in a response header.
+   *
+   * @param ctx The HTTP context.
+   */
+  public void generateDidWithZeroKnowledge(final Context ctx) {
     PrivateKey privateKey = HcsDid.generateDidRootKey();
     HcsDid did = new HcsDid(identityNetwork.getNetwork(), privateKey.getPublicKey(),
             identityNetwork.getAddressBook().getFileId());
@@ -150,7 +167,7 @@ public class DemoHandler extends AppnetHandler {
    */
   public void generateDrivingLicense(final Context ctx) {
     ctx.getRequest().getBody().then(data -> {
-      DrivingLicenseRequest req = null;
+      DrivingLicenseRequest req;
       try {
         req = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseRequest.class);
       } catch (Exception e) {
@@ -200,7 +217,7 @@ public class DemoHandler extends AppnetHandler {
 
   public void generateZeroKnowledgeDrivingLicense(final Context ctx) {
     ctx.getRequest().getBody().then(data -> {
-      DrivingLicenseRequest req = null;
+      DrivingLicenseRequest req;
       try {
         req = JsonUtils.getGson().fromJson(data.getText(), DrivingLicenseRequest.class);
       } catch (Exception e) {
@@ -403,8 +420,11 @@ public class DemoHandler extends AppnetHandler {
           ctx.render(Jackson.json(new ErrorResponse("Invalid request input.")));
           return;
         }
+
+        Dotenv dotenv = Dotenv.configure().load();
+
         String challenge = req.get("challenge").getAsString();
-        String verificationKeyPath = req.get("verificationKeyPath").getAsString();
+        String verificationKeyPath = dotenv.get("VERIFICATION_KEY_PATH");
         String ageThresholdString = req.get("ageThreshold").getAsString();
         int ageThreshold = Integer.parseInt(ageThresholdString);
 

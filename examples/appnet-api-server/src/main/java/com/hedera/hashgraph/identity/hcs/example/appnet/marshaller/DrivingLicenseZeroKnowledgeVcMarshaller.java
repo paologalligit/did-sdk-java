@@ -8,6 +8,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKnowledgeDocument;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
+import com.hedera.hashgraph.identity.hcs.vc.HcsVcStatusResolver;
 import com.hedera.hashgraph.identity.hcs.vc.marshaller.HcsVcDocumentMarshaller;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
@@ -56,7 +57,9 @@ public class DrivingLicenseZeroKnowledgeVcMarshaller extends HcsVcDocumentMarsha
 
     private void insertProofProperty(DrivingLicenseZeroKnowledgeDocument vcDocument, JsonObject root, LinkedHashMap<String, JsonElement> map, String property) {
         JsonObject proofObject = root.get(property).getAsJsonObject();
-        proofObject.addProperty(HcsVcDocumentJsonProperties.ZK_SIGNATURE, vcDocument.getZeroKnowledgeSignature().getSignature());
+        ZeroKnowledgeSignature<DrivingLicense> zeroKnowledgeSignature = vcDocument.getZeroKnowledgeSignature();
+        proofObject.addProperty(HcsVcDocumentJsonProperties.ZK_SIGNATURE, zeroKnowledgeSignature.getSignature());
+        proofObject.addProperty(HcsVcDocumentJsonProperties.MERKLE_TREE_ROOT, zeroKnowledgeSignature.getMerkleTreeRoot());
         map.put(property, proofObject);
     }
     @Override
@@ -68,7 +71,8 @@ public class DrivingLicenseZeroKnowledgeVcMarshaller extends HcsVcDocumentMarsha
 
         JsonObject proofJson = jsonDocument.get(HcsVcDocumentJsonProperties.PROOF).getAsJsonObject();
         String zkSignature = proofJson.get(HcsVcDocumentJsonProperties.ZK_SIGNATURE).getAsString();
-        ZeroKnowledgeSignature<DrivingLicense> signature = new ZkSignature<>(zkSignature, new MerkleTreeFactoryImpl());
+        String merkleTreeRoot = proofJson.get(HcsVcDocumentJsonProperties.MERKLE_TREE_ROOT).getAsString();
+        ZeroKnowledgeSignature<DrivingLicense> signature = new ZkSignature<>(zkSignature, merkleTreeRoot, new MerkleTreeFactoryImpl());
         document.setZeroKnowledgeSignature(signature);
 
         Ed25519CredentialProof proof = initializeProof(jsonDocument);

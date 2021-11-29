@@ -17,21 +17,31 @@ import java.nio.charset.StandardCharsets;
 
 public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSignature<T> {
     private String signature;
-
     private final MerkleTreeFactory merkleTreeFactory;
+    private String merkleTreeRoot;
 
     public ZkSignature(MerkleTreeFactory merkleTreeFactory) {
-        this(null, merkleTreeFactory);
+        this(null, null, merkleTreeFactory);
     }
 
-    public ZkSignature(String signature, MerkleTreeFactory merkleTreeFactory) {
+    public ZkSignature(String signature, String merkleTreeRoot, MerkleTreeFactory merkleTreeFactory) {
         this.signature = signature;
+        this.merkleTreeRoot = merkleTreeRoot;
         this.merkleTreeFactory = merkleTreeFactory;
     }
 
     @Override
     public String getSignature() {
         return this.signature;
+    }
+
+    @Override
+    public String getMerkleTreeRoot() {
+        return merkleTreeRoot;
+    }
+
+    private void setMerkleTreeRoot(String merkleTreeRoot) {
+        this.merkleTreeRoot = merkleTreeRoot;
     }
 
     @Override
@@ -50,6 +60,7 @@ public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSi
         ) {
             merkleTree.finalizeTreeInPlace();
             merkleTreeRoot = merkleTree.root();
+            setMerkleTreeRoot(ByteUtils.bytesToHex(merkleTreeRoot.serializeFieldElement()));
 
             hash = computeHash(documentId, merkleTreeRoot);
             schnorrSignature = keyPair.signMessage(hash);

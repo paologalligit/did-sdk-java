@@ -4,7 +4,7 @@ import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 
 /**
- * A generic zero knowledge signature used to sign the verifiable credential document.
+ * A zero knowledge signature used to sign the verifiable credential document.
  * @param <T> The type of credential subject
  */
 public interface ZeroKnowledgeSignature<T extends CredentialSubject> {
@@ -12,6 +12,11 @@ public interface ZeroKnowledgeSignature<T extends CredentialSubject> {
      * @return The signature.
      */
     String getSignature();
+
+    /**
+     * @return The merkleTreeRoot
+     */
+    String getMerkleTreeRoot();
 
     /**
      * Signs the document.
