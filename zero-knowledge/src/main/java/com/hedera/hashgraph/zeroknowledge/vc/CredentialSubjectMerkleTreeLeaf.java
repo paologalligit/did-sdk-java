@@ -7,6 +7,9 @@ import java.nio.charset.StandardCharsets;
 
 import static com.hedera.hashgraph.zeroknowledge.utils.MerkleTreeUtils.getFieldElementByAllowedTypes;
 
+/**
+ * A class to handle the merkle tree credential subjects leaves, composed of the hash of the label and value.
+ */
 public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible {
     private final String propertyLabel;
     private final Object propertyValue;

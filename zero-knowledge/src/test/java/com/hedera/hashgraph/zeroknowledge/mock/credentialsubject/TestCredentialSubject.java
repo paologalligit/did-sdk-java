@@ -15,17 +15,17 @@ public final class TestCredentialSubject extends CredentialSubject {
         this.age = age;
     }
 
-    @MerkleTreeLeaf(keyName = "name")
+    @MerkleTreeLeaf(labelName = "name")
     public String getName() {
         return name;
     }
 
-    @MerkleTreeLeaf(keyName = "surname")
+    @MerkleTreeLeaf(labelName = "surname")
     public String getSurname() {
         return surname;
     }
 
-    @MerkleTreeLeaf(keyName = "age")
+    @MerkleTreeLeaf(labelName = "age")
     public int getAge() {
         return age;
     }

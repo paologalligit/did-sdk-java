@@ -10,7 +10,7 @@ public final class BadCredentialSubject extends CredentialSubject {
         this.doubleField = doubleField;
     }
 
-    @MerkleTreeLeaf(keyName = "doubleField")
+    @MerkleTreeLeaf(labelName = "doubleField")
     public double getDoubleField() {
         return doubleField;
     }

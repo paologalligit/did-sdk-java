@@ -15,10 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import static com.hedera.hashgraph.zeroknowledge.utils.MerkleTreeUtils.serializeFieldObjectToByteArray;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)

@@ -18,27 +18,27 @@ public final class TestCredentialSubject extends CredentialSubject {
         this.year = year;
     }
 
-    @MerkleTreeLeaf(keyName = "name")
+    @MerkleTreeLeaf(labelName = "name")
     public String getName() {
         return name;
     }
 
-    @MerkleTreeLeaf(keyName = "surname")
+    @MerkleTreeLeaf(labelName = "surname")
     public String getSurname() {
         return surname;
     }
 
-    @MerkleTreeLeaf(keyName = "day")
+    @MerkleTreeLeaf(labelName = "day")
     public int getDay() {
         return day;
     }
 
-    @MerkleTreeLeaf(keyName = "month")
+    @MerkleTreeLeaf(labelName = "month")
     public int getMonth() {
         return month;
     }
 
-    @MerkleTreeLeaf(keyName = "year")
+    @MerkleTreeLeaf(labelName = "year")
     public int getYear() {
         return year;
     }

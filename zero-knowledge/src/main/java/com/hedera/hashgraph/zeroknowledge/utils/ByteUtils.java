@@ -1,25 +1,14 @@
 package com.hedera.hashgraph.zeroknowledge.utils;
 
-import io.horizen.common.librustsidechains.DeserializationException;
-import io.horizen.common.librustsidechains.FieldElement;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class ByteUtils {
-    private static final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
 
     public static byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.putLong(0, x);
         return buffer.array();
-    }
-
-    public static long bytesToLong(byte[] bytes) {
-        buffer.put(bytes, 0, bytes.length);
-        buffer.flip();
-        return buffer.getLong();
     }
 
     public static byte[] intToBytes(int value) {

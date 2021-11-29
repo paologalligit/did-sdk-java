@@ -6,7 +6,7 @@ import io.horizen.common.merkletreenative.FieldBasedMerklePath;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 import io.horizen.common.schnorrnative.SchnorrSignature;
 
-public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput {
+public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput, AutoCloseable {
     private final FieldElement dayValue;
     private final FieldElement monthValue;
     private final FieldElement yearValue;
@@ -145,7 +145,7 @@ public final class AgeCircuitProofPublicInput implements CircuitProofPublicInput
     }
 
     @Override
-    public void freeAll() {
+    public void close() {
         dayValue.close();
         monthValue.close();
         yearValue.close();

@@ -73,12 +73,12 @@ public class DrivingLicense extends CredentialSubject {
         return gson.toJsonTree(map);
     }
 
-    @MerkleTreeLeaf(keyName = "name")
+    @MerkleTreeLeaf(labelName = "name")
     public String getFirstName() {
         return firstName;
     }
 
-    @MerkleTreeLeaf(keyName = "lastName")
+    @MerkleTreeLeaf(labelName = "lastName")
     public String getLastName() {
         return lastName;
     }
@@ -87,17 +87,17 @@ public class DrivingLicense extends CredentialSubject {
         return drivingLicenseCategories;
     }
 
-    @MerkleTreeLeaf(keyName = "day")
+    @MerkleTreeLeaf(labelName = "day")
     public int getBirthDateDay() {
         return birthDate.getDay();
     }
 
-    @MerkleTreeLeaf(keyName = "month")
+    @MerkleTreeLeaf(labelName = "month")
     public int getBirthDateMonth() {
         return birthDate.getMonth();
     }
 
-    @MerkleTreeLeaf(keyName = "year")
+    @MerkleTreeLeaf(labelName = "year")
     public int getBirthDateYear() {
         return birthDate.getYear();
     }

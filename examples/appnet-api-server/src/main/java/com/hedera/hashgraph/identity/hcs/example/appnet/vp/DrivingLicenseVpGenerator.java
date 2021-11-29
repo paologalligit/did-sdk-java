@@ -6,7 +6,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKno
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
 import com.hedera.hashgraph.zeroknowledge.exception.VerifiablePresentationGenerationException;
 import com.hedera.hashgraph.zeroknowledge.exception.VpDocumentGeneratorException;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProof;
+import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkPresentationProof;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.vp.VpZeroKnowledgeGenerator;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,6 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
 
     @Override
     protected ProofAgePublicInput<DrivingLicense> getProofPublicInput(DrivingLicenseZeroKnowledgeDocument document, Map<String, Object> presentationMetadata) {
-        // TODO: can I get here the day labels?
         int ageThreshold = Integer.parseInt(presentationMetadata.get("ageThreshold").toString());
         // TODO: this is not the holder public key, we need to extract it
         String holderPublicKey = document.getCredentialSubject().get(0).getId();
@@ -96,7 +95,7 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
             DriverAboveAgeVerifiableCredential verifiableCredential,
             Map<String, Object> presentationMetadata
     ) throws VpDocumentGeneratorException {
-        ZkSnarkProof proof = new ZkSnarkProof();
+        ZkSnarkPresentationProof proof = new ZkSnarkPresentationProof();
         String signature = licenseDocument.getZeroKnowledgeSignature().getSignature();
         proof.setZkSignature(signature);
 

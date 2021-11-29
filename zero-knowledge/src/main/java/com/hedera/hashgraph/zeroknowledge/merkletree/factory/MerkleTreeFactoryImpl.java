@@ -34,7 +34,7 @@ public class MerkleTreeFactoryImpl implements MerkleTreeFactory {
                     MerkleTreeLeaf annotation = method.getAnnotation(MerkleTreeLeaf.class);
                     Object field = method.invoke(credentialSubject, (Object[]) null);
 
-                    String keyLabel = annotation.keyName();
+                    String keyLabel = annotation.labelName();
 
                     CredentialSubjectMerkleTreeLeaf currentLeaf = new CredentialSubjectMerkleTreeLeaf(keyLabel, field);
 

@@ -24,7 +24,7 @@ public class HcsVcDocumentZeroKnowledge<T extends CredentialSubject> extends Hcs
     }
 
     @Override
-    public Map<String, Object> getCustomHashableFieldsHook() {
+    protected Map<String, Object> getCustomHashableFieldsHook() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put(HcsVcDocumentJsonProperties.ZK_SIGNATURE, this.zeroKnowledgeSignature.getSignature());
         return map;

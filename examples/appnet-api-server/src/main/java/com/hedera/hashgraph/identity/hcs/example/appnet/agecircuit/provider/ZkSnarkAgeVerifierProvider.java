@@ -19,22 +19,13 @@ public class ZkSnarkAgeVerifierProvider implements ZeroKnowledgeVerifierProvider
 
     @Override
     public boolean verifyProof(VerifyAgePublicInput publicInput) throws ZeroKnowledgeVerifyProviderException {
-        try {
-            AgeCircuitVerifyPublicInput circuitInput = dataMapper.fromPublicInputVerifyToCircuitInputVerify(publicInput);
-            boolean verifierResult = verifierInteractor.verifyProof(circuitInput);
-
-            manuallyDeallocateMemory(circuitInput);
-
-            return verifierResult;
+        try (AgeCircuitVerifyPublicInput circuitInput = dataMapper.fromPublicInputVerifyToCircuitInputVerify(publicInput)) {
+            return verifierInteractor.verifyProof(circuitInput);
         } catch (CircuitPublicInputMapperException e) {
             throw new ZeroKnowledgeVerifyProviderException(
                     String.format("Cannot verify proof, error while verifying proof with public input %s", publicInput),
                     e
             );
         }
-    }
-
-    private void manuallyDeallocateMemory(AgeCircuitVerifyPublicInput circuitInput) {
-        circuitInput.freeAll();
     }
 }

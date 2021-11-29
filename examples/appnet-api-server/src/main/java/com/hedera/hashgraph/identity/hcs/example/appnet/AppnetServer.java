@@ -42,7 +42,7 @@ import ratpack.server.RatpackServer;
  */
 public class AppnetServer {
   private static final int SERVER_PORT = 5050;
-  private static Logger log = LoggerFactory.getLogger(AppnetServer.class);
+  private static final Logger log = LoggerFactory.getLogger(AppnetServer.class);
   private Client client;
 
   private HcsIdentityNetwork identityNetwork;
@@ -82,25 +82,12 @@ public class AppnetServer {
       initHederaIdentityNetwork();
       initStorageAndTopicListeners();
       initHandlers();
-      initZeroKnowledgeFeature();
       startApiServer();
 
       log.info("Appnet API server is ready on port: " + SERVER_PORT);
     } catch (Exception e) {
       log.error("Error during startup: ", e);
     }
-  }
-
-  private void initZeroKnowledgeFeature() {
-    AgeCircuitProof.generateDLogKeys(1 << 17, 1 <<15);
-    Dotenv dotenv = Dotenv.configure().load();
-
-    String provingKeyPath = dotenv.get("PROVING_KEY_PATH");
-    String verificationKeyPath = dotenv.get("VERIFICATION_KEY_PATH");
-
-    log.info("Initializing proving and verification key path...");
-    new AgeCircuitProof().setup(provingKeyPath, verificationKeyPath);
-    log.info("Done creating proving and verification keys!");
   }
 
   /**

@@ -71,7 +71,12 @@ public abstract class HcsDocumentHashBase {
     return Base58.encode(hash);
   }
 
-  public Map<String, Object> getCustomHashableFieldsHook() {
+  /**
+   * It's used to add any other field to the credential hash computation.
+   *
+   * @return A map containing the elements to be added in the credential hash computation.
+   */
+  protected Map<String, Object> getCustomHashableFieldsHook() {
     return new LinkedHashMap<>();
   }
 

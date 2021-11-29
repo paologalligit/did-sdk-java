@@ -4,7 +4,7 @@ import com.hedera.hashgraph.zeroknowledge.circuit.model.CircuitVerifyPublicInput
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 
-public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInput {
+public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInput, AutoCloseable {
     private final byte[] proof;
     private final FieldElement currentYear;
     private final FieldElement currentMonth;
@@ -70,7 +70,7 @@ public final class AgeCircuitVerifyPublicInput implements CircuitVerifyPublicInp
     }
 
     @Override
-    public void freeAll() {
+    public void close() {
         currentYear.close();
         currentMonth.close();
         currentDay.close();
