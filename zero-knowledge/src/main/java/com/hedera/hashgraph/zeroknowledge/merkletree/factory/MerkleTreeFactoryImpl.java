@@ -14,6 +14,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class MerkleTreeFactoryImpl implements MerkleTreeFactory {
+    private static final int TREE_HEIGHT = 8;
+    private static final int TREE_PROCESSING_STEPS = 3;
+
     @Override
     public <T extends CredentialSubject> BaseMerkleTree getMerkleTree(List<T> credentialSubjects) throws InvocationTargetException, IllegalAccessException, FinalizationException, MerkleTreeException, InitializationException, FieldElementConversionException {
         BaseMerkleTree inputTree = initializeMerkleTree();
@@ -23,6 +26,16 @@ public class MerkleTreeFactoryImpl implements MerkleTreeFactory {
         inputTree.finalizeTreeInPlace();
 
         return inputTree;
+    }
+
+    @Override
+    public int getTreeHeight() {
+        return TREE_HEIGHT;
+    }
+
+    @Override
+    public int getTreeProcessingSteps() {
+        return TREE_PROCESSING_STEPS;
     }
 
     private <T extends CredentialSubject> void insertLeavesIntoMerkleTree(List<T> credentialSubjects, BaseMerkleTree inputTree) throws IllegalAccessException, InvocationTargetException, MerkleTreeException, FieldElementConversionException {
@@ -45,6 +58,6 @@ public class MerkleTreeFactoryImpl implements MerkleTreeFactory {
     }
 
     private BaseMerkleTree initializeMerkleTree() throws InitializationException {
-        return BaseMerkleTree.init(8, 3);
+        return BaseMerkleTree.init(getTreeHeight(), getTreeProcessingSteps());
     }
 }

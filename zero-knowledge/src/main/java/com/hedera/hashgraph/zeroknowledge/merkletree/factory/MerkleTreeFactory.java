@@ -28,4 +28,16 @@ public interface MerkleTreeFactory {
      * @throws FinalizationException
      */
     <T extends CredentialSubject> BaseMerkleTree getMerkleTree(List<T> credentialSubject) throws FieldElementConversionException, MerkleTreeException, InitializationException, InvocationTargetException, IllegalAccessException, FinalizationException;
+
+    /**
+     * Get the tree max height.
+     * @return The tree height.
+     */
+    int getTreeHeight();
+
+    /**
+     * Get the tree processing steps.
+     * @return The tree processing steps.
+     */
+    int getTreeProcessingSteps();
 }
