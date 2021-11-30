@@ -59,10 +59,12 @@ class AgeCircuitTest {
         SchnorrPublicKey holderPublicKey = holderKeyPair.getPublicKey();
         SchnorrSecretKey holderSecretKey = holderKeyPair.getSecretKey();
         String holderSecretKeyHex = ByteUtils.bytesToHex(holderSecretKey.serializeSecretKey());
+        String holderPublicKeyHex = ByteUtils.bytesToHex(holderPublicKey.serializePublicKey());
 
         SchnorrKeyPair authorityKeyPair = SchnorrKeyPair.generate();
         SchnorrPublicKey authorityPublicKey = authorityKeyPair.getPublicKey();
         SchnorrSecretKey authoritySecretKey = authorityKeyPair.getSecretKey();
+        String authorityPublicKeyHex = ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey());
 
         DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
 
@@ -100,9 +102,11 @@ class AgeCircuitTest {
         presentationMetadata.put("dayLabel", "day");
         presentationMetadata.put("monthLabel", "month");
         presentationMetadata.put("yearLabel", "year");
+        presentationMetadata.put("holderPublicKey", holderPublicKeyHex);
+        presentationMetadata.put("authorityPublicKey", authorityPublicKeyHex);
 
         DrivingLicenseVpGenerator generator = new DrivingLicenseVpGenerator(ageProverProvider);
-        AgeCircuitProof.generateDLogKeys(1 <<17, 1 <<15);
+        AgeCircuitProof.generateDLogKeys(1 << 17, 1 << 15);
         new AgeCircuitProof().setup(PROVING_KEY_PATH, VERIFICATION_KEY_PATH);
         // Act
         DriverAboveAgePresentation presentation = generator.generatePresentation(Collections.singletonList(licenseDocument), presentationMetadata);
