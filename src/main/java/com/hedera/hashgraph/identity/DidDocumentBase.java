@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.hedera.hashgraph.identity.hcs.did.HcsDidRootKey;
+import com.hedera.hashgraph.identity.hcs.did.HcsDidRootZkKey;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import java.util.Iterator;
 
@@ -30,6 +31,9 @@ public class DidDocumentBase {
 
   @Expose(serialize = false, deserialize = false)
   protected HcsDidRootKey didRootKey;
+
+  @Expose(serialize = false, deserialize = false)
+  protected HcsDidRootZkKey didRootZkKey;
 
   /**
    * Creates a new DID Document for the specified DID string.
@@ -65,6 +69,12 @@ public class DidDocumentBase {
                   && publicKeyObj.get(DidDocumentJsonProperties.ID).getAsString()
                   .equals(result.getId() + HcsDidRootKey.DID_ROOT_KEY_NAME)) {
             result.setDidRootKey(gson.fromJson(publicKeyObj, HcsDidRootKey.class));
+          }
+
+          if (publicKeyObj.has(DidDocumentJsonProperties.ID)
+                  && publicKeyObj.get(DidDocumentJsonProperties.ID).getAsString()
+                  .equals(result.getId() + HcsDidRootZkKey.DID_ROOT_KEY_NAME)) {
+            result.setDidRootZkKey(gson.fromJson(publicKeyObj, HcsDidRootZkKey.class));
             break;
           }
         }
@@ -124,6 +134,10 @@ public class DidDocumentBase {
     }
 
     publicKeys.add(JsonUtils.getGson().toJsonTree(didRootKey));
+
+    if (didRootZkKey != null) {
+      publicKeys.add(JsonUtils.getGson().toJsonTree(didRootZkKey));
+    }
   }
 
   public String getContext() {
@@ -142,4 +156,11 @@ public class DidDocumentBase {
     this.didRootKey = didRootKey;
   }
 
+  public HcsDidRootZkKey getDidRootZkKey() {
+    return didRootZkKey;
+  }
+
+  public void setDidRootZkKey(HcsDidRootZkKey didRootZkKey) {
+    this.didRootZkKey = didRootZkKey;
+  }
 }

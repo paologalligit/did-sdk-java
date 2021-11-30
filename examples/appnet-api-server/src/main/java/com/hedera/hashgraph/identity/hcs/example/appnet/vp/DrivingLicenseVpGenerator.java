@@ -25,9 +25,9 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
     protected ProofAgePublicInput<DrivingLicense> getProofPublicInput(DrivingLicenseZeroKnowledgeDocument document, Map<String, Object> presentationMetadata) {
         int ageThreshold = Integer.parseInt(presentationMetadata.get("ageThreshold").toString());
         // TODO: this is not the holder public key, we need to extract it
-        String holderPublicKey = document.getCredentialSubject().get(0).getId();
+//        String holderPublicKey = document.getCredentialSubject().get(0).getId();
         // TODO: this is not the authority public key, we need to extract it
-        String authorityPublicKey = document.getIssuer().getId();
+//        String authorityPublicKey = document.getIssuer().getId();
         Instant vcDocumentDate = document.getIssuanceDate();
 
         return new ProofAgePublicInput<>(
@@ -39,8 +39,8 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
                 presentationMetadata.get("monthLabel").toString(),
                 presentationMetadata.get("yearLabel").toString(),
                 ageThreshold,
-                holderPublicKey,
-                authorityPublicKey,
+                presentationMetadata.get("holderPublicKey").toString(),
+                presentationMetadata.get("authorityPublicKey").toString(),
                 document.getId(),
                 vcDocumentDate
         );

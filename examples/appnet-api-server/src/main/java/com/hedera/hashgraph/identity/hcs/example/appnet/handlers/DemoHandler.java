@@ -36,6 +36,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.horizen.common.schnorrnative.SchnorrKeyPair;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 import io.horizen.common.schnorrnative.SchnorrSecretKey;
+import org.bitcoinj.core.Base58;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -96,9 +97,11 @@ public class DemoHandler extends AppnetHandler {
    */
   public void generateDidWithZeroKnowledge(final Context ctx) {
     PrivateKey privateKey = HcsDid.generateDidRootKey();
+    SchnorrPublicKey holderPublicKey = getSchnorrPublicKeyFromHeader(ctx);
     HcsDid did = new HcsDid(identityNetwork.getNetwork(), privateKey.getPublicKey(),
             identityNetwork.getAddressBook().getFileId());
-    DidDocumentBase doc = did.generateDidDocument();
+    did.setZkDidKeys(ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()));
+    DidDocumentBase doc = did.generateDidDocumentZk();
 
     ctx.header(HEADER_PRIVATE_KEY, privateKey.toString());
     ctx.render(doc.toJson());
@@ -297,7 +300,14 @@ public class DemoHandler extends AppnetHandler {
                       new AgeCircuitProverDataMapper(new MerkleTreeFactoryImpl())
               )
       );
+      String holderPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "holderPublicKey");
+      String holderPublicKey = ByteUtils.bytesToHex(Base58.decode(holderPublicKeyBase58));
+
+      String authorityPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "authorityPublicKey");
+      String authorityPublicKey = ByteUtils.bytesToHex(Base58.decode(authorityPublicKeyBase58));
+
       String secretKey = ByteUtils.bytesToHex(getSchnorrSecretKeyFromHeader(ctx).serializeSecretKey());
+
       Map<String, Object> metadataMap = new HashMap<>();
       metadataMap.put("challenge", req.get("challenge").getAsString());
       metadataMap.put("ageThreshold", req.get("ageThreshold").getAsString());
@@ -305,6 +315,8 @@ public class DemoHandler extends AppnetHandler {
       metadataMap.put("dayLabel", req.get("dayLabel").getAsString());
       metadataMap.put("monthLabel", req.get("monthLabel").getAsString());
       metadataMap.put("yearLabel", req.get("yearLabel").getAsString());
+      metadataMap.put("holderPublicKey", holderPublicKey);
+      metadataMap.put("authorityPublicKey", authorityPublicKey);
 
       DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(
               Collections.singletonList(doc),
@@ -313,6 +325,15 @@ public class DemoHandler extends AppnetHandler {
 
       ctx.render(presenter.fromDocumentToString(presentation));
     });
+  }
+
+  private String getBase58PublicKeyFromHeaderByLabel(Context ctx, String label) {
+    String holderPublicKey = ctx.getRequest().getHeaders().get(label);
+    if (Strings.isNullOrEmpty(holderPublicKey)) {
+      throw new IllegalArgumentException("Private key is missing in the request header.");
+    }
+
+    return holderPublicKey;
   }
 
   /**
@@ -347,6 +368,20 @@ public class DemoHandler extends AppnetHandler {
       throw new IllegalArgumentException("Provided Schnorr secret key is invalid.", ex);
     }
   }
+
+  private SchnorrPublicKey getSchnorrPublicKeyFromHeader(final Context ctx) {
+    String publicKeyString = ctx.getRequest().getHeaders().get(SCHNORR_PUBLIC_KEY);
+    if (Strings.isNullOrEmpty(publicKeyString)) {
+      throw new IllegalArgumentException("Schnorr public key is missing in the request header.");
+    }
+
+    try {
+      return SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(publicKeyString));
+    } catch (Exception ex) {
+      throw new IllegalArgumentException("Provided Schnorr public key is invalid.", ex);
+    }
+  }
+
 
   /**
    * Signs the VC message with a private key given in the request header.
@@ -438,9 +473,15 @@ public class DemoHandler extends AppnetHandler {
 
         LocalDateTime date = LocalDateTime.ofInstant(drivingLicense.getIssuanceDate(), ZoneId.systemDefault());
 
+        String holderPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "holderPublicKey");
+        String holderPublicKey = ByteUtils.bytesToHex(Base58.decode(holderPublicKeyBase58));
+
+        String authorityPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "authorityPublicKey");
+        String authorityPublicKey = ByteUtils.bytesToHex(Base58.decode(authorityPublicKeyBase58));
+
         VerifyAgePublicInput verifyAgePublicInput = new VerifyAgePublicInput(
           ByteUtils.hexStringToByteArray(proof), date.getYear(), date.getMonthValue(), date.getDayOfMonth(), ageThreshold,
-                dld.getHolder(), drivingLicense.getIssuer().getId(), challenge, drivingLicense.getId(), verificationKeyPath
+                holderPublicKey, authorityPublicKey, challenge, drivingLicense.getId(), verificationKeyPath
         );
 
         if (zkProofProvider.verifyProof(verifyAgePublicInput)) {

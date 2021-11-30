@@ -117,6 +117,8 @@ public class DrivingLicenseZeroKnowledgeVcMarshaller extends HcsVcDocumentMarsha
     private List<DrivingLicense> translateToDriverLicense(JsonElement jsonElement) {
         List<DrivingLicense> drivingLicenses = new ArrayList<>();
 
+        // TODO: try using "gson.fromJson(element, BirthDate.class)" instead of custom serializer
+
         for (JsonElement element : jsonElement.getAsJsonArray()) {
             JsonObject drivingLicenseField = element.getAsJsonObject();
 
