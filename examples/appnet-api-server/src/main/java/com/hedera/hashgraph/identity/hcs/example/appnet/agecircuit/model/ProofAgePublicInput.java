@@ -1,8 +1,8 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
-import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeProofPublicInput;
-import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
+import com.hedera.hashgraph.zeroknowledge.proof.model.ZeroKnowledgeProofPublicInput;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZeroKnowledgeSignature;
 import org.threeten.bp.Instant;
 
 import java.util.List;

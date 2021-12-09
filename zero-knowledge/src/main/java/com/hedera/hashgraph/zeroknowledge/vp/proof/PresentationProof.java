@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.proof;
+package com.hedera.hashgraph.zeroknowledge.vp.proof;
 
 /**
  * An interface to define the verifiable presentation proof.

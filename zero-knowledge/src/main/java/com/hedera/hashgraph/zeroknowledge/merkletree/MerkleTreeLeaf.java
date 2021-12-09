@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.vc;
+package com.hedera.hashgraph.zeroknowledge.merkletree;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

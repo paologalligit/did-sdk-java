@@ -3,7 +3,7 @@ package com.hedera.hashgraph.zeroknowledge.vc;
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
-import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZeroKnowledgeSignature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

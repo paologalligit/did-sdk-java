@@ -1,6 +1,6 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model;
 
-import com.hedera.hashgraph.zeroknowledge.circuit.model.ZeroKnowledgeVerifyPublicInput;
+import com.hedera.hashgraph.zeroknowledge.proof.model.ZeroKnowledgeVerifyPublicInput;
 
 public final class VerifyAgePublicInput implements ZeroKnowledgeVerifyPublicInput {
     private final byte[] proof;

@@ -4,7 +4,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.interactor.Ag
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper.AgeCircuitVerifierDataMapper;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.AgeCircuitVerifyPublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.VerifyAgePublicInput;
-import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeVerifierProvider;
+import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeVerifierProvider;
 import com.hedera.hashgraph.zeroknowledge.exception.CircuitPublicInputMapperException;
 import com.hedera.hashgraph.zeroknowledge.exception.ZeroKnowledgeVerifyProviderException;
 

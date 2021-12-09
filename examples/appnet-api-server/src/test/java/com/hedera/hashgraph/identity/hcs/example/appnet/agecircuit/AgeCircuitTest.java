@@ -19,8 +19,8 @@ import com.hedera.hashgraph.zeroknowledge.exception.VerifiablePresentationGenera
 import com.hedera.hashgraph.zeroknowledge.exception.ZeroKnowledgeVerifyProviderException;
 import com.hedera.hashgraph.zeroknowledge.exception.ZkSignatureException;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
-import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.PresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSignature;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import io.horizen.common.schnorrnative.SchnorrKeyPair;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;

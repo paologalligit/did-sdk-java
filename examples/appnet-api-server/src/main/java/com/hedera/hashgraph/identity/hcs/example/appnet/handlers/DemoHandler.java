@@ -29,14 +29,14 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcMessage;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
-import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
-import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.PresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSignature;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.horizen.common.schnorrnative.SchnorrKeyPair;
 import io.horizen.common.schnorrnative.SchnorrPublicKey;
 import io.horizen.common.schnorrnative.SchnorrSecretKey;
 import org.bitcoinj.core.Base58;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -100,7 +100,7 @@ public class DemoHandler extends AppnetHandler {
     SchnorrPublicKey holderPublicKey = getSchnorrPublicKeyFromHeader(ctx);
     HcsDid did = new HcsDid(identityNetwork.getNetwork(), privateKey.getPublicKey(),
             identityNetwork.getAddressBook().getFileId());
-    did.setZkDidKeys(ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()));
+    did.setZkDidKeys(ByteUtils.toHexString(holderPublicKey.serializePublicKey()));
     DidDocumentBase doc = did.generateDidDocumentZk();
 
     ctx.header(HEADER_PRIVATE_KEY, privateKey.toString());
@@ -301,12 +301,12 @@ public class DemoHandler extends AppnetHandler {
               )
       );
       String holderPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "holderPublicKey");
-      String holderPublicKey = ByteUtils.bytesToHex(Base58.decode(holderPublicKeyBase58));
+      String holderPublicKey = ByteUtils.toHexString(Base58.decode(holderPublicKeyBase58));
 
       String authorityPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "authorityPublicKey");
-      String authorityPublicKey = ByteUtils.bytesToHex(Base58.decode(authorityPublicKeyBase58));
+      String authorityPublicKey = ByteUtils.toHexString(Base58.decode(authorityPublicKeyBase58));
 
-      String secretKey = ByteUtils.bytesToHex(getSchnorrSecretKeyFromHeader(ctx).serializeSecretKey());
+      String secretKey = ByteUtils.toHexString(getSchnorrSecretKeyFromHeader(ctx).serializeSecretKey());
 
       Map<String, Object> metadataMap = new HashMap<>();
       metadataMap.put("challenge", req.get("challenge").getAsString());
@@ -363,7 +363,7 @@ public class DemoHandler extends AppnetHandler {
     }
 
     try {
-      return SchnorrSecretKey.deserialize(ByteUtils.hexStringToByteArray(privateKeyString));
+      return SchnorrSecretKey.deserialize(ByteUtils.fromHexString(privateKeyString));
     } catch (Exception ex) {
       throw new IllegalArgumentException("Provided Schnorr secret key is invalid.", ex);
     }
@@ -376,7 +376,7 @@ public class DemoHandler extends AppnetHandler {
     }
 
     try {
-      return SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(publicKeyString));
+      return SchnorrPublicKey.deserialize(ByteUtils.fromHexString(publicKeyString));
     } catch (Exception ex) {
       throw new IllegalArgumentException("Provided Schnorr public key is invalid.", ex);
     }
@@ -474,13 +474,13 @@ public class DemoHandler extends AppnetHandler {
         LocalDateTime date = LocalDateTime.ofInstant(drivingLicense.getIssuanceDate(), ZoneId.systemDefault());
 
         String holderPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "holderPublicKey");
-        String holderPublicKey = ByteUtils.bytesToHex(Base58.decode(holderPublicKeyBase58));
+        String holderPublicKey = ByteUtils.toHexString(Base58.decode(holderPublicKeyBase58));
 
         String authorityPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "authorityPublicKey");
-        String authorityPublicKey = ByteUtils.bytesToHex(Base58.decode(authorityPublicKeyBase58));
+        String authorityPublicKey = ByteUtils.toHexString(Base58.decode(authorityPublicKeyBase58));
 
         VerifyAgePublicInput verifyAgePublicInput = new VerifyAgePublicInput(
-          ByteUtils.hexStringToByteArray(proof), date.getYear(), date.getMonthValue(), date.getDayOfMonth(), ageThreshold,
+          ByteUtils.fromHexString(proof), date.getYear(), date.getMonthValue(), date.getDayOfMonth(), ageThreshold,
                 holderPublicKey, authorityPublicKey, challenge, drivingLicense.getId(), verificationKeyPath
         );
 
@@ -503,8 +503,8 @@ public class DemoHandler extends AppnetHandler {
       SchnorrPublicKey publicKey = keyPair.getPublicKey();
       SchnorrSecretKey secretKey = keyPair.getSecretKey();
 
-      ctx.header(HEADER_SCHNORR_SECRET_KEY, ByteUtils.bytesToHex(secretKey.serializeSecretKey()));
-      ctx.header(SCHNORR_PUBLIC_KEY, ByteUtils.bytesToHex(publicKey.serializePublicKey()));
+      ctx.header(HEADER_SCHNORR_SECRET_KEY, ByteUtils.toHexString(secretKey.serializeSecretKey()));
+      ctx.header(SCHNORR_PUBLIC_KEY, ByteUtils.toHexString(publicKey.serializePublicKey()));
 
       ctx.getResponse().status(Status.OK);
       ctx.render("Schnorr key pair generated");

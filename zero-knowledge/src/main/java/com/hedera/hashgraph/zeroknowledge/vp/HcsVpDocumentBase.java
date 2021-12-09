@@ -14,25 +14,12 @@ public abstract class HcsVpDocumentBase<T extends VerifiableCredentialBase> exte
     @JsonAdapter(SingleToArrayTypeAdapterFactory.class)
     protected List<T> verifiableCredential;
 
-    public void setHolder(String holder) {
-        this.holder = holder;
-    }
-
     /**
      * Creates a new VP Document instance.
      */
     public HcsVpDocumentBase() {
         super();
         this.context = Lists.newArrayList(HcsVpDocumentJsonProperties.FIRST_CONTEXT_ENTRY);
-    }
-
-    /**
-     * Add an additional type to `type` field of the VP document.
-     *
-     * @param type The type to add.
-     */
-    public void addType(final String type) {
-        this.type.add(type);
     }
 
     public void addVerifiableCredential(T verifiableCredential) {

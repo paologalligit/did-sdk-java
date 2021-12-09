@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.proof;
+package com.hedera.hashgraph.zeroknowledge.vp.proof;
 
 public class ZkSnarkProofJsonProperties {
     public static final String TYPE = "type";

@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.proof;
+package com.hedera.hashgraph.zeroknowledge.vp.proof;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
@@ -6,13 +6,14 @@ import com.hedera.hashgraph.zeroknowledge.exception.ZkSignatureException;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.utils.MerkleTreeUtils;
-import io.horizen.common.librustsidechains.*;
+import io.horizen.common.librustsidechains.FieldElement;
+import io.horizen.common.librustsidechains.FinalizationException;
 import io.horizen.common.merkletreenative.BaseMerkleTree;
-import io.horizen.common.merkletreenative.MerkleTreeException;
-import io.horizen.common.schnorrnative.*;
+import io.horizen.common.schnorrnative.SchnorrKeyPair;
+import io.horizen.common.schnorrnative.SchnorrPublicKey;
+import io.horizen.common.schnorrnative.SchnorrSecretKey;
+import io.horizen.common.schnorrnative.SchnorrSignature;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 
 public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSignature<T> {
@@ -53,10 +54,7 @@ public class ZkSignature<T extends CredentialSubject> implements ZeroKnowledgeSi
                 BaseMerkleTree merkleTree = merkleTreeFactory.getMerkleTree(vcDocument.getCredentialSubject());
                 SchnorrSecretKey secretKey = SchnorrSecretKey.deserialize(privateKey);
                 SchnorrPublicKey publicKey = secretKey.getPublicKey();
-                SchnorrKeyPair keyPair = new SchnorrKeyPair(
-                        secretKey,
-                        publicKey
-                )
+                SchnorrKeyPair keyPair = new SchnorrKeyPair(secretKey, publicKey)
         ) {
             merkleTree.finalizeTreeInPlace();
             merkleTreeRoot = merkleTree.root();

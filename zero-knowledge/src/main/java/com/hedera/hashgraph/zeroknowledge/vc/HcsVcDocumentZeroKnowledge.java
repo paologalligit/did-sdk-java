@@ -5,11 +5,16 @@ import com.google.gson.annotations.SerializedName;
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
-import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZeroKnowledgeSignature;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A class representing a verifiable credential document using zero knowledge.
+ *
+ * @param <T> The credential subject class.
+ */
 public class HcsVcDocumentZeroKnowledge<T extends CredentialSubject> extends HcsVcDocumentBase<T> {
     @Expose
     @SerializedName(HcsVcDocumentJsonProperties.ZK_SIGNATURE)

@@ -5,7 +5,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.mapper.AgeCir
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.AgeCircuitProofPublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
-import com.hedera.hashgraph.zeroknowledge.circuit.ZeroKnowledgeProverProvider;
+import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeProverProvider;
 import com.hedera.hashgraph.zeroknowledge.exception.CircuitPublicInputMapperException;
 import com.hedera.hashgraph.zeroknowledge.exception.ZeroKnowledgeProofProviderException;
 

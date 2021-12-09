@@ -1,7 +1,7 @@
 package com.hedera.hashgraph.identity.hcs.example.appnet.mock;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
-import com.hedera.hashgraph.zeroknowledge.vc.MerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.merkletree.MerkleTreeLeaf;
 
 public final class TestCredentialSubject extends CredentialSubject {
     private final String name;

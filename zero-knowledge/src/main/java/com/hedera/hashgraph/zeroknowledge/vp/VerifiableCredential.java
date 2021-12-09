@@ -2,8 +2,8 @@ package com.hedera.hashgraph.zeroknowledge.vp;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkProofJsonProperties;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.PresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSnarkProofJsonProperties;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

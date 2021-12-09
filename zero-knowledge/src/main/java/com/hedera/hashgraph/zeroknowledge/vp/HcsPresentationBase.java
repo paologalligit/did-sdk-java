@@ -7,6 +7,9 @@ import org.threeten.bp.Instant;
 
 import java.util.List;
 
+/**
+ * A base class used to create a new verifiable presentation document.
+ */
 public abstract class HcsPresentationBase {
     @Expose(deserialize = false)
     @SerializedName(HcsVpDocumentJsonProperties.CONTEXT)
@@ -71,5 +74,14 @@ public abstract class HcsPresentationBase {
 
     public void setIssuanceDate(Instant issuanceDate) {
         this.issuanceDate = issuanceDate;
+    }
+
+    /**
+     * Add an additional type to `type` field of the VP document.
+     *
+     * @param type The type to add.
+     */
+    public void addType(final String type) {
+        this.type.add(type);
     }
 }

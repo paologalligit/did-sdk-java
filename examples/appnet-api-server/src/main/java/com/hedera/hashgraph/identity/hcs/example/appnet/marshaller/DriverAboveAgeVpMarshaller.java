@@ -11,8 +11,8 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.zeroknowledge.marshaller.ZeroKnowledgeVpMarshaller;
-import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkPresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.PresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSnarkPresentationProof;
 import com.hedera.hashgraph.zeroknowledge.vp.HcsVpDocumentJsonProperties;
 import org.threeten.bp.Instant;
 

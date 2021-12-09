@@ -1,8 +1,12 @@
-package com.hedera.hashgraph.zeroknowledge.proof;
+package com.hedera.hashgraph.zeroknowledge.vp.proof;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * A concrete class representing a zero knowledge proof of a verifiable credential inside a verifiable presentation document.
+ * It uses a snark proof.
+ */
 public class ZkSnarkPresentationProof implements PresentationProof {
     private static final String TYPE = "ZkSnarkProof";
 

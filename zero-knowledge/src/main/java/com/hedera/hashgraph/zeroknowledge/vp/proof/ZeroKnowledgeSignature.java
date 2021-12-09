@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.proof;
+package com.hedera.hashgraph.zeroknowledge.vp.proof;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;

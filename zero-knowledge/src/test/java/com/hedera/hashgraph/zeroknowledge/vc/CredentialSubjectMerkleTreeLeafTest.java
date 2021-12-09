@@ -1,5 +1,6 @@
 package com.hedera.hashgraph.zeroknowledge.vc;
 
+import com.hedera.hashgraph.zeroknowledge.merkletree.CredentialSubjectMerkleTreeLeaf;
 import io.horizen.common.librustsidechains.DeserializationException;
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.librustsidechains.FieldElementConversionException;

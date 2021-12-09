@@ -3,6 +3,7 @@ package com.hedera.hashgraph.zeroknowledge.proof;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentBase;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
 import com.hedera.hashgraph.zeroknowledge.mock.credentialsubject.TestCredentialSubject;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSignature;
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.librustsidechains.FieldElementConversionException;
 import io.horizen.common.librustsidechains.FinalizationException;

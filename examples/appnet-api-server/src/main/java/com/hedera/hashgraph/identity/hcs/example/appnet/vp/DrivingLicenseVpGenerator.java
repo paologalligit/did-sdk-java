@@ -6,7 +6,7 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKno
 import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAgePublicInput;
 import com.hedera.hashgraph.zeroknowledge.exception.VerifiablePresentationGenerationException;
 import com.hedera.hashgraph.zeroknowledge.exception.VpDocumentGeneratorException;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSnarkPresentationProof;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSnarkPresentationProof;
 import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.vp.VpZeroKnowledgeGenerator;
 import org.jetbrains.annotations.NotNull;
@@ -99,7 +99,7 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
         String signature = licenseDocument.getZeroKnowledgeSignature().getSignature();
         proof.setZkSignature(signature);
 
-        byte[] snarkProof = generateSnarkProof(licenseDocument, presentationMetadata);
+        byte[] snarkProof = generateZeroKnowledgeProof(licenseDocument, presentationMetadata);
         proof.setSnarkProof(ByteUtils.bytesToHex(snarkProof));
 
         verifiableCredential.setProof(proof);

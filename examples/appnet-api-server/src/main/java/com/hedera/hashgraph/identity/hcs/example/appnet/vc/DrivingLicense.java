@@ -7,7 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.hedera.hashgraph.identity.hcs.example.appnet.dto.BirthDate;
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
-import com.hedera.hashgraph.zeroknowledge.vc.MerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.merkletree.MerkleTreeLeaf;
 
 import java.util.LinkedHashMap;
 import java.util.List;

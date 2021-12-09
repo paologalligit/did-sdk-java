@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
-import com.hedera.hashgraph.zeroknowledge.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredential;
 import com.hedera.hashgraph.zeroknowledge.vp.VerifiableCredentialJsonProperties;
 import org.threeten.bp.Instant;

@@ -14,6 +14,11 @@ import java.util.List;
 
 import static com.hedera.hashgraph.identity.utils.JsonUtils.getJsonElementAsList;
 
+/**
+ * A base class used to marshall and unmarshall a verifiable presentation to a formatted json string, based on the w3c standard.
+ *
+ * @param <T> The type of the verifiable presentation document.
+ */
 public abstract class ZeroKnowledgeVpMarshaller<T extends HcsVpDocumentBase<? extends VerifiableCredentialBase>> implements VpMarshaller<T> {
     private static final String[] JSON_PROPERTIES_ORDER = {"@context", "id", "type", "issuanceDate", "holder"};
     protected static final Gson gson = JsonUtils.getGson();
@@ -39,6 +44,12 @@ public abstract class ZeroKnowledgeVpMarshaller<T extends HcsVpDocumentBase<? ex
         return fromJsonToDocument(jsonDocument);
     }
 
+    /**
+     * From json string format to concrete document converter.
+     *
+     * @param jsonDocument The document represented as a json object.
+     * @return The internal representation of a verifiable presentation.
+     */
     protected T fromJsonToDocument(JsonObject jsonDocument) {
         T decodedDocument = initializeNewBlankDocument();
 
@@ -60,5 +71,10 @@ public abstract class ZeroKnowledgeVpMarshaller<T extends HcsVpDocumentBase<? ex
         return decodedDocument;
     }
 
+    /**
+     * An abstract method that the concrete class has to implement to return its blank document type.
+     *
+     * @return A concrete blank document to be filled.
+     */
     protected abstract T initializeNewBlankDocument();
 }

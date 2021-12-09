@@ -1,23 +1,8 @@
 package com.hedera.hashgraph.zeroknowledge.utils;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public final class ByteUtils {
-
-    public static byte[] longToBytes(long x) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.putLong(0, x);
-        return buffer.array();
-    }
-
-    public static byte[] intToBytes(int value) {
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-        buffer.putInt(value);
-        buffer.rewind();
-        return buffer.array();
-    }
-
     private static final byte[] HEX_ARRAY = "0123456789abcdef".getBytes(StandardCharsets.US_ASCII);
     public static String bytesToHex(byte[] bytes) {
         byte[] hexChars = new byte[bytes.length * 2];

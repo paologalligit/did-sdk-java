@@ -1,4 +1,4 @@
-package com.hedera.hashgraph.zeroknowledge.vc;
+package com.hedera.hashgraph.zeroknowledge.merkletree;
 
 import io.horizen.common.librustsidechains.*;
 import io.horizen.common.poseidonnative.PoseidonHash;
@@ -21,17 +21,15 @@ public class CredentialSubjectMerkleTreeLeaf implements FieldElementConvertible 
 
     @Override
     public FieldElement toFieldElement() throws FieldElementConversionException {
-        try {
-            try(
-                    PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
-                    FieldElement keyField = FieldElement.deserialize(propertyLabel.getBytes(StandardCharsets.UTF_8));
-                    FieldElement valueFields = getFieldElementByAllowedTypes(propertyValue)
-            ) {
-                hash.update(keyField);
-                hash.update(valueFields);
+        try (
+                PoseidonHash hash = PoseidonHash.getInstanceConstantLength(2);
+                FieldElement keyField = FieldElement.deserialize(propertyLabel.getBytes(StandardCharsets.UTF_8));
+                FieldElement valueFields = getFieldElementByAllowedTypes(propertyValue)
+        ) {
+            hash.update(keyField);
+            hash.update(valueFields);
 
-                return hash.finalizeHash();
-            }
+            return hash.finalizeHash();
         } catch (DeserializationException | IllegalArgumentException e) {
             throw new FieldElementConversionException(
                     String.format("Cannot deserialize label or value to field element. Label: '%s', value: '%s'", propertyLabel, propertyValue),

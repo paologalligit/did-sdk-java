@@ -1,8 +1,8 @@
 package com.hedera.hashgraph.zeroknowledge.merkletree.factory;
 
 import com.hedera.hashgraph.identity.hcs.vc.CredentialSubject;
-import com.hedera.hashgraph.zeroknowledge.vc.CredentialSubjectMerkleTreeLeaf;
-import com.hedera.hashgraph.zeroknowledge.vc.MerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.merkletree.CredentialSubjectMerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.merkletree.MerkleTreeLeaf;
 import io.horizen.common.librustsidechains.FieldElementConversionException;
 import io.horizen.common.librustsidechains.FinalizationException;
 import io.horizen.common.librustsidechains.InitializationException;

@@ -2,7 +2,7 @@ package com.hedera.hashgraph.zeroknowledge.merkletree.factory;
 
 import com.hedera.hashgraph.zeroknowledge.mock.credentialsubject.BadCredentialSubject;
 import com.hedera.hashgraph.zeroknowledge.mock.credentialsubject.TestCredentialSubject;
-import com.hedera.hashgraph.zeroknowledge.vc.CredentialSubjectMerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.merkletree.CredentialSubjectMerkleTreeLeaf;
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.librustsidechains.FieldElementConversionException;
 import io.horizen.common.librustsidechains.FinalizationException;

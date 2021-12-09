@@ -8,12 +8,11 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.vc.CredentialSchema;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicenseZeroKnowledgeDocument;
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.Ed25519CredentialProof;
-import com.hedera.hashgraph.identity.hcs.vc.HcsVcStatusResolver;
 import com.hedera.hashgraph.identity.hcs.vc.marshaller.HcsVcDocumentMarshaller;
 import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactoryImpl;
-import com.hedera.hashgraph.zeroknowledge.proof.ZeroKnowledgeSignature;
-import com.hedera.hashgraph.zeroknowledge.proof.ZkSignature;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZeroKnowledgeSignature;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSignature;
 import org.threeten.bp.Instant;
 
 import java.util.ArrayList;
