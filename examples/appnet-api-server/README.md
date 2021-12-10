@@ -56,5 +56,29 @@ Providing a large number may improve performance due to fewer file operations, h
 
 Persisted data resides in the `persistedCredentialIssuers.ser`, `persistedDiDs.ser`, `persistedSignatures.ser` and `persistedVCs.ser` of the application's folder. They are binary files and not human readable.
 
+## Zero knowledge flow example
+Roles:
+- the authority: some entity allowed issuing verifiable credential document;
+- the holder: a user who asks the authority for a verifiable credential document, can create a verifiable presentation
+to prove some statement;
+- the verifier: whoever wants to verify some statement claimed by a holder through a verifiable presentation.
+
+Example flow:
+1. An authority creates a public/secret key pair (in this case the Tweedle curve is used to generate such keys);
+2. It then creates a did document containing also the public key previously generated;
+3. It posts a message containing the _credential hash_ of the did document on Hedera;
+4. A user wants the authority to release them a document certifying their age;
+5. The user then creates their own did and post it to Hedera;
+6. The authority then issues a verifiable credential document to the user, where their personal data are reported in plain text;
+7. A merchant is offering some service, but only to people older than 18 years old;
+8. The user is interested in such service and has a verifiable credential document stating their age;
+9. The merchant sends a challenge to the user;
+10. The user then generates a presentation out of the vc document, where a snark proof is stating the above-age claim;
+11. The merchant is sent the presentation, where no user's personal data is included, and can verify the proof telling whether the user is telling the truth or not.
+
+_Notes_: to generate and verify a snark proof, the circuit needs a couple of keys: a proving and a verification key. 
+These keys will be generated once per circuit and everytime an entity needs to generate or verify a proof is going to use
+them. 
+
 [did-method-spec]: https://github.com/hashgraph/did-method
 [postman]: https://www.postman.com/
