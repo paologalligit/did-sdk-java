@@ -59,7 +59,7 @@ Persisted data resides in the `persistedCredentialIssuers.ser`, `persistedDiDs.s
 ## Zero knowledge flow example
 Roles:
 - the authority: some entity allowed issuing verifiable credential document;
-- the holder: a user who asks the authority for a verifiable credential document, can create a verifiable presentation
+- the holder: a user who asks the authority for a verifiable credential document; can create a verifiable presentation
 to prove some statement;
 - the verifier: whoever wants to verify some statement claimed by a holder through a verifiable presentation.
 
