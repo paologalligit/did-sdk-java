@@ -11,6 +11,7 @@ import com.hedera.hashgraph.identity.hcs.vc.HcsVcDocumentJsonProperties;
 import com.hedera.hashgraph.identity.hcs.vc.Issuer;
 import com.hedera.hashgraph.identity.utils.JsonUtils;
 import com.hedera.hashgraph.zeroknowledge.marshaller.ZeroKnowledgeVpMarshaller;
+import com.hedera.hashgraph.zeroknowledge.vc.HcsVcDocumentZeroKnowledgeJsonProperties;
 import com.hedera.hashgraph.zeroknowledge.vp.proof.PresentationProof;
 import com.hedera.hashgraph.zeroknowledge.vp.proof.ZkSnarkPresentationProof;
 import com.hedera.hashgraph.zeroknowledge.vp.HcsVpDocumentJsonProperties;
@@ -101,7 +102,7 @@ public class DriverAboveAgeVpMarshaller extends ZeroKnowledgeVpMarshaller<Driver
             credential.setIssuanceDate(Instant.parse(issuanceDate));
 
             JsonObject proofJson = currElement.get(HcsVcDocumentJsonProperties.PROOF).getAsJsonObject();
-            String signature = proofJson.get(HcsVcDocumentJsonProperties.ZK_SIGNATURE).getAsString();
+            String signature = proofJson.get(HcsVcDocumentZeroKnowledgeJsonProperties.ZK_SIGNATURE).getAsString();
             String snarkProof = proofJson.get("snarkProof").getAsString();
             PresentationProof proof = new ZkSnarkPresentationProof(signature, snarkProof);
             credential.setProof(proof);

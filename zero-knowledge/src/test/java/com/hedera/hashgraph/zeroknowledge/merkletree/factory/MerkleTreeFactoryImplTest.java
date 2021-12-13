@@ -75,11 +75,29 @@ class MerkleTreeFactoryImplTest {
         double badProp = 12.3;
         BadCredentialSubject credentialSubject = new BadCredentialSubject(badProp);
 
-
         // Act
         Exception exception = assertThrows(FieldElementConversionException.class, () -> merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject)));
 
         // Assert
         assertTrue(exception.getMessage().contains("Cannot deserialize label or value to field element"));
+    }
+
+    @Test
+    public void creatingMultipleTimesAMerkleTreeWithTheSameLeaves_ReturnsTheSameRoot() throws FieldElementConversionException, MerkleTreeException, InitializationException, InvocationTargetException, IllegalAccessException, FinalizationException {
+        // Arrange
+        TestCredentialSubject credentialSubject = new TestCredentialSubject(name, surname, age);
+
+        // Act
+        BaseMerkleTree firstTree = merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject));
+        BaseMerkleTree secondTree = merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject));
+        BaseMerkleTree thirdTree = merkleTreeFactory.getMerkleTree(Collections.singletonList(credentialSubject));
+
+        FieldElement firstTreeRoot = firstTree.root();
+        FieldElement secondTreeRoot = secondTree.root();
+        FieldElement thirdTreeRoot = thirdTree.root();
+
+        // Assert
+        assertEquals(firstTreeRoot, secondTreeRoot);
+        assertEquals(secondTreeRoot, thirdTreeRoot);
     }
 }

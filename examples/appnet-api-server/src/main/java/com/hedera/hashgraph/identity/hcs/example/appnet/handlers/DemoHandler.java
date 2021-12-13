@@ -90,7 +90,8 @@ public class DemoHandler extends AppnetHandler {
   }
 
   /**
-   * Generates a new DID document and writes it to the response body.
+   * Generates a new DID document containing an additional public key in the public key section used to compute
+   * the zero knowledge proof and writes it to the response body.
    * Private key is returned in a response header.
    *
    * @param ctx The HTTP context.
@@ -218,6 +219,14 @@ public class DemoHandler extends AppnetHandler {
     });
   }
 
+  /**
+   * Generates a verifiable credential document containing the driving license. This method uses the zero knowledge feature,
+   * so it's including the merkle tree root and a zero knowledge signature in the proof section.
+   * The input data comes from request body.
+   * It needs both private key to sign the document and the Schnorr secret key to compute the zk signature.
+   * Both the keys come from the request header.
+   * @param ctx The HTTP context.
+   */
   public void generateZeroKnowledgeDrivingLicense(final Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       DrivingLicenseRequest req;
@@ -278,6 +287,14 @@ public class DemoHandler extends AppnetHandler {
     });
   }
 
+  /**
+   * Method to generate an above-age presentation from a VC document containing the user's birthdate.
+   * The input data comes from request body.
+   * The user's and authority's public keys come from the request header.
+   * The generated presentation is sent in the response body.
+   *
+   * @param ctx The HTTP context.
+   */
   public void generateDrivingAboveAgePresentation(final Context ctx) {
     ctx.getRequest().getBody().then(data -> {
       JsonObject req;

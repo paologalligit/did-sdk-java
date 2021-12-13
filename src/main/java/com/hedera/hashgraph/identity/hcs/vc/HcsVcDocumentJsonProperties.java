@@ -18,9 +18,6 @@ public final class HcsVcDocumentJsonProperties {
   public static final String CREDENTIAL_STATUS = "credentialStatus";
   public static final String PROOF = "proof";
 
-  public static final String ZK_SIGNATURE = "zkSignature";
-  public static final String MERKLE_TREE_ROOT = "merkleTreeRoot";
-
     /**
    * This class is not to be instantiated.
    */

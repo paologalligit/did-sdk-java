@@ -30,10 +30,14 @@ public class HcsDid implements HederaDid {
   private FileId addressBookFileId;
   private String network;
   private String idString;
-  private String idStringZk;
   private String did;
   private PublicKey didRootKey;
   private PrivateKey privateDidRootKey;
+  /**
+   * This couple of attributes is used to register a new public key in the did document.
+   * Having this zero knowledge public key allow the did owner to create verifiable presentations.
+   */
+  private String idStringZk;
   private String didRootZkKey;
 
   /**

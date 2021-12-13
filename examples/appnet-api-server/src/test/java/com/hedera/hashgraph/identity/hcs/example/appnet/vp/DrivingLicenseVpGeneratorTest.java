@@ -19,8 +19,7 @@ import org.threeten.bp.Instant;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +38,7 @@ class DrivingLicenseVpGeneratorTest {
     private DrivingLicenseVpGenerator generator;
 
     @Test
-    public void test() throws VerifiablePresentationGenerationException, ZeroKnowledgeProofProviderException {
+    public void drivingLicenseVpGeneratorCanGenerateCorrectlyAPresentationFromAVCDocument() throws VerifiablePresentationGenerationException, ZeroKnowledgeProofProviderException {
         // Arrange
         Map<String, Object> presentationMetadata = new HashMap<>();
         presentationMetadata.put("challenge", "challenge");
@@ -98,5 +97,23 @@ class DrivingLicenseVpGeneratorTest {
         assertEquals(verifiableCredential.getCredentialSchema().id, "fake-credentialSchemaId");
         assertEquals(verifiableCredential.getCredentialSchema().type, "fake-credentialSchemaType");
         assertEquals(verifiableCredential.getProof().getProof(), proof);
+    }
+
+    @Test
+    public void whenPassingMoreThanOneCredentialSubjectElementToDrivingLicenseVpGenerator_throwsAnException() {
+        // Arrange
+        List<DrivingLicenseZeroKnowledgeDocument> vcDocuments = List.of(licenseDocument, licenseDocument);
+        Map<String, Object> presentationMetadata = new HashMap<>();
+        String expectedMessage = "Cannot generate a driver above-age presentation with multiple VC documents";
+
+        // Act
+        Exception exception = assertThrows(
+                IllegalStateException.class,
+                () -> generator.generatePresentation(vcDocuments, presentationMetadata)
+        );
+
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertEquals(expectedMessage, actualMessage);
     }
 }

@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class HcsVcDocumentZeroKnowledge<T extends CredentialSubject> extends HcsVcDocumentBase<T> {
     @Expose
-    @SerializedName(HcsVcDocumentJsonProperties.ZK_SIGNATURE)
+    @SerializedName(HcsVcDocumentZeroKnowledgeJsonProperties.ZK_SIGNATURE)
     protected ZeroKnowledgeSignature<T> zeroKnowledgeSignature;
 
     public ZeroKnowledgeSignature<T> getZeroKnowledgeSignature() {
@@ -31,7 +31,7 @@ public class HcsVcDocumentZeroKnowledge<T extends CredentialSubject> extends Hcs
     @Override
     protected Map<String, Object> getCustomHashableFieldsHook() {
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put(HcsVcDocumentJsonProperties.ZK_SIGNATURE, this.zeroKnowledgeSignature.getSignature());
+        map.put(HcsVcDocumentZeroKnowledgeJsonProperties.ZK_SIGNATURE, this.zeroKnowledgeSignature.getSignature());
         return map;
     }
 }

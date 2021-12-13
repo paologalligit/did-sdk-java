@@ -24,10 +24,6 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
     @Override
     protected ProofAgePublicInput<DrivingLicense> getProofPublicInput(DrivingLicenseZeroKnowledgeDocument document, Map<String, Object> presentationMetadata) {
         int ageThreshold = Integer.parseInt(presentationMetadata.get("ageThreshold").toString());
-        // TODO: this is not the holder public key, we need to extract it
-//        String holderPublicKey = document.getCredentialSubject().get(0).getId();
-        // TODO: this is not the authority public key, we need to extract it
-//        String authorityPublicKey = document.getIssuer().getId();
         Instant vcDocumentDate = document.getIssuanceDate();
 
         return new ProofAgePublicInput<>(
@@ -48,6 +44,10 @@ public class DrivingLicenseVpGenerator extends VpZeroKnowledgeGenerator<DrivingL
 
     @Override
     public DriverAboveAgePresentation generatePresentation(List<DrivingLicenseZeroKnowledgeDocument> vcDocuments, Map<String, Object> presentationMetadata) throws VerifiablePresentationGenerationException {
+        if (vcDocuments.size() != 1) {
+            throw new IllegalStateException("Cannot generate a driver above-age presentation with multiple VC documents");
+        }
+
         DrivingLicenseZeroKnowledgeDocument licenseDocument = vcDocuments.get(0);
 
         DriverAboveAgePresentation driverAboveAgePresentation = new DriverAboveAgePresentation();

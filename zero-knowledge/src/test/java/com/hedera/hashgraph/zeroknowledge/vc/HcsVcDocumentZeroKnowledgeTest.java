@@ -56,6 +56,6 @@ class HcsVcDocumentZeroKnowledgeTest {
 
         // Assert
         assertEquals(map.size(), 1);
-        assertNotNull(map.getOrDefault(HcsVcDocumentJsonProperties.ZK_SIGNATURE, null));
+        assertNotNull(map.getOrDefault(HcsVcDocumentZeroKnowledgeJsonProperties.ZK_SIGNATURE, null));
     }
 }

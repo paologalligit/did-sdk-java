@@ -28,13 +28,17 @@ import io.horizen.common.schnorrnative.SchnorrSecretKey;
 import io.horizenlabs.agecircuit.AgeCircuitProof;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,13 +52,16 @@ class AgeCircuitTest {
     private final AgeCircuitVerifierDataMapper ageCircuitVerifierDataMapper = new AgeCircuitVerifierDataMapper();
     private final ZkSnarkAgeVerifierProvider verifierProvider = new ZkSnarkAgeVerifierProvider(verifierInteractor, ageCircuitVerifierDataMapper);
 
-    private static final String PROVING_KEY_PATH = "/tmp/proving.key";
-    private static final String VERIFICATION_KEY_PATH = "/tmp/verification.key";
-
     @Test
-    public void testCreateProofFullFlow() throws VerifiablePresentationGenerationException, ZeroKnowledgeVerifyProviderException, ZkSignatureException {
+    public void testCreateProofFullFlow_CorrectGenerationAndVerify(@TempDir Path tempDir) throws VerifiablePresentationGenerationException, ZeroKnowledgeVerifyProviderException, ZkSignatureException, IOException {
         // Arrange
-        // the keys
+        // Keys paths
+        Path provingKeyFolder = tempDir.resolve("proving.key");
+        Path verificationKeyFolder = tempDir.resolve("verification.key");
+        String provingKeyPath = provingKeyFolder.toString();
+        String verificationKeyPath = verificationKeyFolder.toString();
+
+        // Creation of keys
         SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
         SchnorrPublicKey holderPublicKey = holderKeyPair.getPublicKey();
         SchnorrSecretKey holderSecretKey = holderKeyPair.getSecretKey();
@@ -68,7 +75,7 @@ class AgeCircuitTest {
 
         DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
 
-        // the vc document
+        // VC document creation
         DrivingLicenseZeroKnowledgeDocument licenseDocument = new DrivingLicenseZeroKnowledgeDocument();
         licenseDocument.setId("fake-id");
         licenseDocument.setIssuer(new Issuer(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey())));
@@ -106,8 +113,11 @@ class AgeCircuitTest {
         presentationMetadata.put("authorityPublicKey", authorityPublicKeyHex);
 
         DrivingLicenseVpGenerator generator = new DrivingLicenseVpGenerator(ageProverProvider);
+
+        // Create the temporary keys for the test
         AgeCircuitProof.generateDLogKeys(1 << 17, 1 << 15);
-        new AgeCircuitProof().setup(PROVING_KEY_PATH, VERIFICATION_KEY_PATH);
+        new AgeCircuitProof().setup(provingKeyPath, verificationKeyPath);
+
         // Act
         DriverAboveAgePresentation presentation = generator.generatePresentation(Collections.singletonList(licenseDocument), presentationMetadata);
         List<DriverAboveAgeVerifiableCredential> verifiableCredentials = presentation.getVerifiableCredential();
@@ -125,7 +135,7 @@ class AgeCircuitTest {
 
         VerifyAgePublicInput verifyPublicInput = new VerifyAgePublicInput(
                 proofResult, currentYear, currentMonth, currentDay, ageThreshold, ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()),
-                ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()), challenge, documentId, VERIFICATION_KEY_PATH
+                ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()), challenge, documentId, verificationKeyPath
         );
 
         // Act
@@ -133,5 +143,191 @@ class AgeCircuitTest {
 
         // Assert
         assertTrue(verifyResult);
+    }
+
+    @Test
+    public void testCreateProofFullFlow_CorrectGenerationButVerifyChallengeIsDifferent(@TempDir Path tempDir) throws VerifiablePresentationGenerationException, ZeroKnowledgeVerifyProviderException, ZkSignatureException, IOException {
+        // Arrange
+        // Keys paths
+        Path provingKeyFolder = tempDir.resolve("proving.key");
+        Path verificationKeyFolder = tempDir.resolve("verification.key");
+        String provingKeyPath = provingKeyFolder.toString();
+        String verificationKeyPath = verificationKeyFolder.toString();
+
+        // Creation of keys
+        SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
+        SchnorrPublicKey holderPublicKey = holderKeyPair.getPublicKey();
+        SchnorrSecretKey holderSecretKey = holderKeyPair.getSecretKey();
+        String holderSecretKeyHex = ByteUtils.bytesToHex(holderSecretKey.serializeSecretKey());
+        String holderPublicKeyHex = ByteUtils.bytesToHex(holderPublicKey.serializePublicKey());
+
+        SchnorrKeyPair authorityKeyPair = SchnorrKeyPair.generate();
+        SchnorrPublicKey authorityPublicKey = authorityKeyPair.getPublicKey();
+        SchnorrSecretKey authoritySecretKey = authorityKeyPair.getSecretKey();
+        String authorityPublicKeyHex = ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey());
+
+        DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
+
+        // VC document creation
+        DrivingLicenseZeroKnowledgeDocument licenseDocument = new DrivingLicenseZeroKnowledgeDocument();
+        licenseDocument.setId("fake-id");
+        licenseDocument.setIssuer(new Issuer(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey())));
+        Instant currentInstant = Instant.now();
+        licenseDocument.setIssuanceDate(currentInstant);
+        DrivingLicense drivingLicense = new DrivingLicense(ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()), "fake-firstName", "fake-lastName",
+                new ArrayList<>(), new BirthDate(3, 12, 1991));
+
+        licenseDocument.addCredentialSubject(drivingLicense);
+        CredentialSchema schema = new CredentialSchema(
+                "http://localhost:5050/driving-license-schema.json",
+                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE
+        );
+
+        licenseDocument.setCredentialSchema(schema);
+
+        Ed25519CredentialProof proof = new Ed25519CredentialProof(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()));
+        proof.sign(PrivateKey.generate(), presenter.fromDocumentToString(licenseDocument));
+        licenseDocument.setProof(proof);
+
+        ZkSignature<DrivingLicense> zkSignature = new ZkSignature<>(
+                new MerkleTreeFactoryImpl()
+        );
+        zkSignature.sign(authoritySecretKey.serializeSecretKey(), licenseDocument);
+        licenseDocument.setZeroKnowledgeSignature(zkSignature);
+
+        Map<String, Object> presentationMetadata = new HashMap<>();
+        presentationMetadata.put("ageThreshold", 18);
+        presentationMetadata.put("challenge", "fake-challenge");
+        presentationMetadata.put("secretKey", holderSecretKeyHex);
+        presentationMetadata.put("dayLabel", "day");
+        presentationMetadata.put("monthLabel", "month");
+        presentationMetadata.put("yearLabel", "year");
+        presentationMetadata.put("holderPublicKey", holderPublicKeyHex);
+        presentationMetadata.put("authorityPublicKey", authorityPublicKeyHex);
+
+        DrivingLicenseVpGenerator generator = new DrivingLicenseVpGenerator(ageProverProvider);
+
+        // Create the temporary keys for the test
+        AgeCircuitProof.generateDLogKeys(1 << 17, 1 << 15);
+        new AgeCircuitProof().setup(provingKeyPath, verificationKeyPath);
+
+        // Act
+        DriverAboveAgePresentation presentation = generator.generatePresentation(Collections.singletonList(licenseDocument), presentationMetadata);
+        List<DriverAboveAgeVerifiableCredential> verifiableCredentials = presentation.getVerifiableCredential();
+        PresentationProof presentationProof = verifiableCredentials.get(0).getProof();
+        byte[] proofResult = ByteUtils.hexStringToByteArray(presentationProof.getProof());
+
+        // Arrange
+        LocalDateTime date = LocalDateTime.ofInstant(currentInstant, ZoneId.systemDefault());
+        long currentYear = date.getYear();
+        long currentMonth = date.getMonthValue();
+        long currentDay = date.getDayOfMonth();
+        int ageThreshold = 18;
+        String challenge = "fake-differentChallenge";
+        String documentId = "fake-id";
+
+        VerifyAgePublicInput verifyPublicInput = new VerifyAgePublicInput(
+                proofResult, currentYear, currentMonth, currentDay, ageThreshold, ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()),
+                ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()), challenge, documentId, verificationKeyPath
+        );
+
+        // Act
+        boolean verifyResult = verifierProvider.verifyProof(verifyPublicInput);
+
+        // Assert
+        assertFalse(verifyResult);
+    }
+
+    @Test
+    public void testCreateProofFullFlow_CorrectGenerationButVerifyAgeThresholdIsDifferent(@TempDir Path tempDir) throws VerifiablePresentationGenerationException, ZeroKnowledgeVerifyProviderException, ZkSignatureException, IOException {
+        // Arrange
+        // Keys paths
+        Path provingKeyFolder = tempDir.resolve("proving.key");
+        Path verificationKeyFolder = tempDir.resolve("verification.key");
+        String provingKeyPath = provingKeyFolder.toString();
+        String verificationKeyPath = verificationKeyFolder.toString();
+
+        // Creation of keys
+        SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
+        SchnorrPublicKey holderPublicKey = holderKeyPair.getPublicKey();
+        SchnorrSecretKey holderSecretKey = holderKeyPair.getSecretKey();
+        String holderSecretKeyHex = ByteUtils.bytesToHex(holderSecretKey.serializeSecretKey());
+        String holderPublicKeyHex = ByteUtils.bytesToHex(holderPublicKey.serializePublicKey());
+
+        SchnorrKeyPair authorityKeyPair = SchnorrKeyPair.generate();
+        SchnorrPublicKey authorityPublicKey = authorityKeyPair.getPublicKey();
+        SchnorrSecretKey authoritySecretKey = authorityKeyPair.getSecretKey();
+        String authorityPublicKeyHex = ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey());
+
+        DrivingLicenseZeroKnowledgeVcMarshaller presenter = new DrivingLicenseZeroKnowledgeVcMarshaller();
+
+        // VC document creation
+        DrivingLicenseZeroKnowledgeDocument licenseDocument = new DrivingLicenseZeroKnowledgeDocument();
+        licenseDocument.setId("fake-id");
+        licenseDocument.setIssuer(new Issuer(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey())));
+        Instant currentInstant = Instant.now();
+        licenseDocument.setIssuanceDate(currentInstant);
+        DrivingLicense drivingLicense = new DrivingLicense(ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()), "fake-firstName", "fake-lastName",
+                new ArrayList<>(), new BirthDate(3, 12, 1991));
+
+        licenseDocument.addCredentialSubject(drivingLicense);
+        CredentialSchema schema = new CredentialSchema(
+                "http://localhost:5050/driving-license-schema.json",
+                DrivingLicenseDocument.CREDENTIAL_SCHEMA_TYPE
+        );
+
+        licenseDocument.setCredentialSchema(schema);
+
+        Ed25519CredentialProof proof = new Ed25519CredentialProof(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()));
+        proof.sign(PrivateKey.generate(), presenter.fromDocumentToString(licenseDocument));
+        licenseDocument.setProof(proof);
+
+        ZkSignature<DrivingLicense> zkSignature = new ZkSignature<>(
+                new MerkleTreeFactoryImpl()
+        );
+        zkSignature.sign(authoritySecretKey.serializeSecretKey(), licenseDocument);
+        licenseDocument.setZeroKnowledgeSignature(zkSignature);
+
+        Map<String, Object> presentationMetadata = new HashMap<>();
+        presentationMetadata.put("ageThreshold", 18);
+        presentationMetadata.put("challenge", "fake-challenge");
+        presentationMetadata.put("secretKey", holderSecretKeyHex);
+        presentationMetadata.put("dayLabel", "day");
+        presentationMetadata.put("monthLabel", "month");
+        presentationMetadata.put("yearLabel", "year");
+        presentationMetadata.put("holderPublicKey", holderPublicKeyHex);
+        presentationMetadata.put("authorityPublicKey", authorityPublicKeyHex);
+
+        DrivingLicenseVpGenerator generator = new DrivingLicenseVpGenerator(ageProverProvider);
+
+        // Create the temporary keys for the test
+        AgeCircuitProof.generateDLogKeys(1 << 17, 1 << 15);
+        new AgeCircuitProof().setup(provingKeyPath, verificationKeyPath);
+
+        // Act
+        DriverAboveAgePresentation presentation = generator.generatePresentation(Collections.singletonList(licenseDocument), presentationMetadata);
+        List<DriverAboveAgeVerifiableCredential> verifiableCredentials = presentation.getVerifiableCredential();
+        PresentationProof presentationProof = verifiableCredentials.get(0).getProof();
+        byte[] proofResult = ByteUtils.hexStringToByteArray(presentationProof.getProof());
+
+        // Arrange
+        LocalDateTime date = LocalDateTime.ofInstant(currentInstant, ZoneId.systemDefault());
+        long currentYear = date.getYear();
+        long currentMonth = date.getMonthValue();
+        long currentDay = date.getDayOfMonth();
+        int ageThreshold = 22;
+        String challenge = "fake-challenge";
+        String documentId = "fake-id";
+
+        VerifyAgePublicInput verifyPublicInput = new VerifyAgePublicInput(
+                proofResult, currentYear, currentMonth, currentDay, ageThreshold, ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()),
+                ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey()), challenge, documentId, verificationKeyPath
+        );
+
+        // Act
+        boolean verifyResult = verifierProvider.verifyProof(verifyPublicInput);
+
+        // Assert
+        assertFalse(verifyResult);
     }
 }
