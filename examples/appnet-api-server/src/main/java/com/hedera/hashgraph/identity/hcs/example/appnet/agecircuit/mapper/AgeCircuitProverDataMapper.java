@@ -5,10 +5,11 @@ import com.hedera.hashgraph.identity.hcs.example.appnet.agecircuit.model.ProofAg
 import com.hedera.hashgraph.identity.hcs.example.appnet.vc.DrivingLicense;
 import com.hedera.hashgraph.zeroknowledge.circuit.mapper.CircuitProverDataMapper;
 import com.hedera.hashgraph.zeroknowledge.exception.CircuitPublicInputMapperException;
-import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
-import com.hedera.hashgraph.zeroknowledge.vp.proof.ZeroKnowledgeSignature;
-import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
 import com.hedera.hashgraph.zeroknowledge.merkletree.CredentialSubjectMerkleTreeLeaf;
+import com.hedera.hashgraph.zeroknowledge.merkletree.factory.MerkleTreeFactory;
+import com.hedera.hashgraph.zeroknowledge.utils.ByteUtils;
+import com.hedera.hashgraph.zeroknowledge.utils.HashUtils;
+import com.hedera.hashgraph.zeroknowledge.vp.proof.ZeroKnowledgeSignature;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.horizen.common.librustsidechains.FieldElement;
 import io.horizen.common.merkletreenative.BaseMerkleTree;
@@ -69,7 +70,8 @@ public class AgeCircuitProverDataMapper implements CircuitProverDataMapper<Proof
             byte[] zkSignatureBytes = ByteUtils.hexStringToByteArray(zeroKnowledgeSignature.getSignature());
             SchnorrSignature zkSignature = SchnorrSignature.deserialize(zkSignatureBytes);
 
-            FieldElement challenge = FieldElement.deserialize(proofAgePublicInput.getChallenge().getBytes(StandardCharsets.UTF_8));
+            List<FieldElement> challengeList = FieldElement.deserializeMany(proofAgePublicInput.getChallenge().getBytes(StandardCharsets.UTF_8));
+            FieldElement challenge = HashUtils.hashFieldElementList(challengeList);
             PoseidonHash hashChallenge = PoseidonHash.getInstanceConstantLength(1);
             hashChallenge.update(challenge);
             FieldElement challengeHashed = hashChallenge.finalizeHash();
@@ -94,7 +96,8 @@ public class AgeCircuitProverDataMapper implements CircuitProverDataMapper<Proof
             SchnorrPublicKey holderPublicKey = SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(holderPublicKeyValue));
             SchnorrPublicKey authorityPublicKey = SchnorrPublicKey.deserialize(ByteUtils.hexStringToByteArray(authorityPublicKeyValue));
 
-            FieldElement documentId = FieldElement.deserialize(proofAgePublicInput.getDocumentId().getBytes(StandardCharsets.UTF_8));
+            List<FieldElement> documentIds = FieldElement.deserializeMany(proofAgePublicInput.getDocumentId().getBytes(StandardCharsets.UTF_8));
+            FieldElement documentId = HashUtils.hashFieldElementList(documentIds);
 
             String provingKeyPath = dotenv.get("PROVING_KEY_PATH");
 

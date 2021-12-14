@@ -25,7 +25,7 @@ public class DrivingLicenseZeroKnowledgeDocument extends HcsVcDocumentZeroKnowle
     addType(DOCUMENT_TYPE);
 
     // Generate a unique identifier for this credential
-    this.id = "demo-id"; // EXAMPLE_ID_PREFIX + UUID.randomUUID();
+    this.id = EXAMPLE_ID_PREFIX + UUID.randomUUID();
   }
 
   public CredentialSchema getCredentialSchema() {

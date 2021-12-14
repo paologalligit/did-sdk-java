@@ -58,8 +58,8 @@ class AgeCircuitTest {
         // Keys paths
         Path provingKeyFolder = tempDir.resolve("proving.key");
         Path verificationKeyFolder = tempDir.resolve("verification.key");
-        String provingKeyPath = provingKeyFolder.toString();
-        String verificationKeyPath = verificationKeyFolder.toString();
+        String provingKeyPath = "/tmp/proving.key"; // provingKeyFolder.toString();
+        String verificationKeyPath = "/tmp/verification.key"; // verificationKeyFolder.toString();
 
         // Creation of keys
         SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
@@ -77,7 +77,7 @@ class AgeCircuitTest {
 
         // VC document creation
         DrivingLicenseZeroKnowledgeDocument licenseDocument = new DrivingLicenseZeroKnowledgeDocument();
-        licenseDocument.setId("fake-id");
+        licenseDocument.setId("fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__");
         licenseDocument.setIssuer(new Issuer(ByteUtils.bytesToHex(authorityPublicKey.serializePublicKey())));
         Instant currentInstant = Instant.now();
         licenseDocument.setIssuanceDate(currentInstant);
@@ -131,7 +131,7 @@ class AgeCircuitTest {
         long currentDay = date.getDayOfMonth();
         int ageThreshold = 18;
         String challenge = "fake-challenge";
-        String documentId = "fake-id";
+        String documentId = "fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__fake-id__";
 
         VerifyAgePublicInput verifyPublicInput = new VerifyAgePublicInput(
                 proofResult, currentYear, currentMonth, currentDay, ageThreshold, ByteUtils.bytesToHex(holderPublicKey.serializePublicKey()),
@@ -151,8 +151,8 @@ class AgeCircuitTest {
         // Keys paths
         Path provingKeyFolder = tempDir.resolve("proving.key");
         Path verificationKeyFolder = tempDir.resolve("verification.key");
-        String provingKeyPath = provingKeyFolder.toString();
-        String verificationKeyPath = verificationKeyFolder.toString();
+        String provingKeyPath = "/tmp/proving.key"; // provingKeyFolder.toString();
+        String verificationKeyPath = "/tmp/verification.key"; // verificationKeyFolder.toString();
 
         // Creation of keys
         SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();
@@ -244,8 +244,8 @@ class AgeCircuitTest {
         // Keys paths
         Path provingKeyFolder = tempDir.resolve("proving.key");
         Path verificationKeyFolder = tempDir.resolve("verification.key");
-        String provingKeyPath = provingKeyFolder.toString();
-        String verificationKeyPath = verificationKeyFolder.toString();
+        String provingKeyPath = "/tmp/proving.key"; // provingKeyFolder.toString();
+        String verificationKeyPath = "/tmp/verification.key"; // verificationKeyFolder.toString();
 
         // Creation of keys
         SchnorrKeyPair holderKeyPair = SchnorrKeyPair.generate();

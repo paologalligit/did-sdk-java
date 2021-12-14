@@ -78,7 +78,10 @@ Example flow:
 
 _Notes_: to generate and verify a snark proof, the circuit needs a couple of keys: a proving and a verification key. 
 These keys will be generated once per circuit and everytime an entity needs to generate or verify a proof is going to use
-them. 
+them.
+
+## Dependencies
+At the moment the example is using `hedera-cryptolib-0.1.0.jar`, a private repo containing the above-age circuit.
 
 [did-method-spec]: https://github.com/hashgraph/did-method
 [postman]: https://www.postman.com/
