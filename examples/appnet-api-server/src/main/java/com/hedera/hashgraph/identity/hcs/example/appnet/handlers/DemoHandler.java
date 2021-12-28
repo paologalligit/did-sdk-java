@@ -310,37 +310,42 @@ public class DemoHandler extends AppnetHandler {
         return;
       }
 
-      DriverAboveAgeVpMarshaller presenter = new DriverAboveAgeVpMarshaller();
-      DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator(
-              new ZkSnarkAgeProverProvider(
-                      new AgeCircuitProverInteractor(),
-                      new AgeCircuitProverDataMapper(new MerkleTreeFactoryImpl())
-              )
-      );
-      String holderPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "holderPublicKey");
-      String holderPublicKey = ByteUtils.toHexString(Base58.decode(holderPublicKeyBase58));
+      try {
+        DriverAboveAgeVpMarshaller presenter = new DriverAboveAgeVpMarshaller();
+        DrivingLicenseVpGenerator vpGenerator = new DrivingLicenseVpGenerator(
+                new ZkSnarkAgeProverProvider(
+                        new AgeCircuitProverInteractor(),
+                        new AgeCircuitProverDataMapper(new MerkleTreeFactoryImpl())
+                )
+        );
+        String holderPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "holderPublicKey");
+        String holderPublicKey = ByteUtils.toHexString(Base58.decode(holderPublicKeyBase58));
 
-      String authorityPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "authorityPublicKey");
-      String authorityPublicKey = ByteUtils.toHexString(Base58.decode(authorityPublicKeyBase58));
+        String authorityPublicKeyBase58 = getBase58PublicKeyFromHeaderByLabel(ctx, "authorityPublicKey");
+        String authorityPublicKey = ByteUtils.toHexString(Base58.decode(authorityPublicKeyBase58));
 
-      String secretKey = ByteUtils.toHexString(getSchnorrSecretKeyFromHeader(ctx).serializeSecretKey());
+        String secretKey = ByteUtils.toHexString(getSchnorrSecretKeyFromHeader(ctx).serializeSecretKey());
 
-      Map<String, Object> metadataMap = new HashMap<>();
-      metadataMap.put("challenge", req.get("challenge").getAsString());
-      metadataMap.put("ageThreshold", req.get("ageThreshold").getAsString());
-      metadataMap.put("secretKey", secretKey);
-      metadataMap.put("dayLabel", req.get("dayLabel").getAsString());
-      metadataMap.put("monthLabel", req.get("monthLabel").getAsString());
-      metadataMap.put("yearLabel", req.get("yearLabel").getAsString());
-      metadataMap.put("holderPublicKey", holderPublicKey);
-      metadataMap.put("authorityPublicKey", authorityPublicKey);
+        Map<String, Object> metadataMap = new HashMap<>();
+        metadataMap.put("challenge", req.get("challenge").getAsString());
+        metadataMap.put("ageThreshold", req.get("ageThreshold").getAsString());
+        metadataMap.put("secretKey", secretKey);
+        metadataMap.put("dayLabel", req.get("dayLabel").getAsString());
+        metadataMap.put("monthLabel", req.get("monthLabel").getAsString());
+        metadataMap.put("yearLabel", req.get("yearLabel").getAsString());
+        metadataMap.put("holderPublicKey", holderPublicKey);
+        metadataMap.put("authorityPublicKey", authorityPublicKey);
 
-      DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(
-              Collections.singletonList(doc),
-              metadataMap
-      );
+        DriverAboveAgePresentation presentation = vpGenerator.generatePresentation(
+                Collections.singletonList(doc),
+                metadataMap
+        );
 
-      ctx.render(presenter.fromDocumentToString(presentation));
+        ctx.render(presenter.fromDocumentToString(presentation));
+      } catch (Exception e) {
+        ctx.getResponse().status(Status.INTERNAL_SERVER_ERROR);
+        ctx.render(Jackson.json(new ErrorResponse("Cannot generate verifiable presentation document.")));
+      }
     });
   }
 
